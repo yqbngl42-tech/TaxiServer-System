@@ -178,10 +178,25 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Security middleware
-app.use(helmet());
-app.use(mongoSanitize());
-app.use(xss());
-
+// TODO: בעתיד - העבר inline scripts לקבצים נפרדים ומחק 'unsafe-inline'
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "ws:", "wss:"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+app.use(mongoSanitize());  // 👈 זה נשאר!
+app.use(xss());            // 👈 זה נשאר!
 // Static files
 app.use(express.static(path.join(__dirname, "public")));
 
