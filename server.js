@@ -26,7 +26,8 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import crypto from 'crypto';
-import { authenticateToken, authenticateAdmin } from './middlewares/auth.js';
+import { authenticateAdmin } from './middlewares/auth.js';
+
 // Models
 import Ride from "./models/Ride.js";
 import Driver from "./models/Driver.js";
@@ -146,7 +147,7 @@ console.log('🔍 Validating environment variables...');
 const REQUIRED_ENV_VARS = [
   'MONGODB_URI',
   'JWT_SECRET',
-  'ADMIN_PASSWORD_HASH',  // ✅ תואם ל-bcrypt!
+  'ADMIN_PASSWORD_HASH',
   'TWILIO_ACCOUNT_SID',
   'TWILIO_AUTH_TOKEN',
   'TWILIO_WHATSAPP_FROM'
@@ -170,29 +171,24 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ===============================================
-// 🔒 SECURITY MIDDLEWARE - FIXED
+// 🛡️ MIDDLEWARE STACK
 // ===============================================
 
 // Body parsers
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Security middleware with complete CSP configuration
+// Security middleware
 // TODO: בעתיד - העבר inline scripts לקבצים נפרדים ומחק 'unsafe-inline'
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      scriptSrcAttr: ["'unsafe-inline'"], // מאפשר onclick inline
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: [
-        "'self'", 
-        "ws:", 
-        "wss:", 
-        "https://taxiserver-system.onrender.com" // מאפשר API calls
-      ],
+      connectSrc: ["'self'", "ws:", "wss:", "https://taxiserver-system.onrender.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -201,7 +197,6 @@ app.use(helmet({
   },
   crossOriginEmbedderPolicy: false,
 }));
-
 app.use(mongoSanitize());
 app.use(xss());
 
@@ -297,6 +292,44 @@ process.on('SIGINT', async () => {
   console.log('\nMongoDB connection closed due to app termination');
   process.exit(0);
 });
+
+// ===============================================
+// 🔐 AUTHENTICATION MIDDLEWARE
+// ===============================================
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ 
+      ok: false, 
+      error: ERRORS.AUTH.NO_TOKEN 
+    });
+  }
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    if (decoded.exp && Date.now() >= decoded.exp * 1000) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: ERRORS.AUTH.EXPIRED_TOKEN 
+      });
+    }
+    
+    req.user = decoded;
+    next();
+  } catch (err) {
+    logger.error("Token verification failed", { 
+      requestId: req.id, 
+      error: err.message 
+    });
+    return res.status(403).json({ 
+      ok: false, 
+      error: ERRORS.AUTH.INVALID_TOKEN 
+    });
+  }
+};
 
 // ===============================================
 // 🔑 UNIQUE LINK GENERATOR FOR TWILIO
@@ -2859,7 +2892,7 @@ app.post('/api/rides/:id/rating', async (req, res) => {
 });
 
 // WebSocket stats endpoint
-app.get('/api/websocket/stats', authenticateToken, authenticateAdmin, (req, res) => {
+app.get('/api/websocket/stats', authenticateAdmin, (req, res) => {
   try {
     const stats = websockets.getWebSocketStats();
     res.json({
