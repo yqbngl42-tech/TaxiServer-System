@@ -20,8 +20,8 @@ const RideSchema = new mongoose.Schema({
   customerPhone: {
     type: String,
     required: true,
-    trim: true,
-    index: true
+    trim: true
+    // index: composite index defined below
   },
   pickup: {
     type: String,
@@ -166,9 +166,9 @@ const RideSchema = new mongoose.Schema({
   }
 });
 
-RideSchema.index({ status: 1, createdAt: -1 });
+// Basic indexes for frequent queries
+// Note: Compound indexes below cover status and customerPhone
 RideSchema.index({ driverPhone: 1, status: 1 });
-RideSchema.index({ customerPhone: 1 });
 RideSchema.index({ paymentStatus: 1 });
 RideSchema.index({ lockedBy: 1 });
 

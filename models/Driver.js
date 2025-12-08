@@ -14,8 +14,8 @@ const DriverSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true,
-    index: true  // Index for fast phone queries
+    trim: true
+    // index: defined below for composite queries
   },
   driverId: {
     type: String,
@@ -27,8 +27,8 @@ const DriverSchema = new mongoose.Schema({
   idNumber: {
     type: String,
     default: null,
-    trim: true,
-    index: true
+    trim: true
+    // index: defined below
   },
   licenseNumber: {
     type: String,
@@ -90,8 +90,8 @@ const DriverSchema = new mongoose.Schema({
   registrationStatus: {
     type: String,
     enum: ['pending', 'approved', 'rejected', 'completed'],
-    default: 'pending',
-    index: true
+    default: 'pending'
+    // index: composite index defined below
   },
   approvedBy: {
     type: String,
@@ -107,13 +107,13 @@ const DriverSchema = new mongoose.Schema({
   },
   isActive: {
     type: Boolean,
-    default: true,
-    index: true  // Index for active driver queries
+    default: true
+    // index: composite index defined below
   },
   isBlocked: {
     type: Boolean,
-    default: false,
-    index: true  // Index for blocked status
+    default: false
+    // index: composite index defined below
   },
   blockedReason: {
     type: String,
@@ -129,8 +129,8 @@ const DriverSchema = new mongoose.Schema({
       type: Number, 
       default: 5.0, 
       min: 1, 
-      max: 5,
-      index: -1  // Index for sorting by rating (descending)
+      max: 5
+      // index: composite index defined below
     },
     count: { 
       type: Number, 
