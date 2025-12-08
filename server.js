@@ -26,8 +26,7 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import crypto from 'crypto';
-import { authenticateAdmin } from './middlewares/auth.js';
-
+import { authenticateToken, authenticateAdmin } from './middlewares/auth.js';
 // Models
 import Ride from "./models/Ride.js";
 import Driver from "./models/Driver.js";
@@ -275,44 +274,6 @@ process.on('SIGINT', async () => {
   console.log('\nMongoDB connection closed due to app termination');
   process.exit(0);
 });
-
-// ===============================================
-// 🔐 AUTHENTICATION MIDDLEWARE
-// ===============================================
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({ 
-      ok: false, 
-      error: ERRORS.AUTH.NO_TOKEN 
-    });
-  }
-  
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    if (decoded.exp && Date.now() >= decoded.exp * 1000) {
-      return res.status(401).json({ 
-        ok: false, 
-        error: ERRORS.AUTH.EXPIRED_TOKEN 
-      });
-    }
-    
-    req.user = decoded;
-    next();
-  } catch (err) {
-    logger.error("Token verification failed", { 
-      requestId: req.id, 
-      error: err.message 
-    });
-    return res.status(403).json({ 
-      ok: false, 
-      error: ERRORS.AUTH.INVALID_TOKEN 
-    });
-  }
-};
 
 // ===============================================
 // 🔑 UNIQUE LINK GENERATOR FOR TWILIO
@@ -2875,7 +2836,7 @@ app.post('/api/rides/:id/rating', async (req, res) => {
 });
 
 // WebSocket stats endpoint
-app.get('/api/websocket/stats', authenticateAdmin, (req, res) => {
+app.get('/api/websocket/stats', authenticateToken, authenticateAdmin, (req, res) => {
   try {
     const stats = websockets.getWebSocketStats();
     res.json({
