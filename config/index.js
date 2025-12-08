@@ -165,6 +165,7 @@ twilio: {
  * @throws {Error} if required variables are missing
  */
 export function validateConfig() {
+<<<<<<< Updated upstream
  const required = [
   'MONGODB_URI',
   'JWT_SECRET',
@@ -174,20 +175,34 @@ export function validateConfig() {
   'TWILIO_WHATSAPP_FROM'
 ];
   
+=======
+  const required = [
+    'MONGODB_URI',
+    'JWT_SECRET',
+    'ADMIN_PASSWORD_HASH', // במקום ADMIN_PASSWORD
+    'TWILIO_ACCOUNT_SID',
+    'TWILIO_AUTH_TOKEN',
+    'TWILIO_WHATSAPP_FROM'
+  ];
+
+>>>>>>> Stashed changes
   const missing = required.filter(key => !process.env[key]);
-  
+
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
-  
+
   // Validate JWT_SECRET strength
   if ((process.env.JWT_SECRET || '').length < 32) {
     console.warn('⚠️  WARNING: JWT_SECRET is too short. Use at least 32 characters for security.');
   }
+<<<<<<< Updated upstream
   
+=======
+
+>>>>>>> Stashed changes
   return true;
 }
-
 /**
  * Get config value by path
  * @param {string} path - Dot-separated path (e.g., 'db.uri')
