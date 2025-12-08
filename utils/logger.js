@@ -64,6 +64,16 @@ export default {
     const logMessage = `[${timestamp}] 📌 ACTION: ${action}${details ? ' | ' + JSON.stringify(details) : ''}`;
     console.log(logMessage);
     appendToLogFile(logMessage);
+  },
+
+  /**
+   * רשום לוג של debug
+   */
+  debug: (message, data = null) => {
+    const timestamp = getTimeStamp();
+    const logMessage = `[${timestamp}] 🔍 DEBUG: ${message}${data ? ' | ' + JSON.stringify(data) : ''}`;
+    console.log(logMessage);
+    appendToLogFile(logMessage);
   }
 };
 
