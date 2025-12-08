@@ -36,24 +36,24 @@ export const config = {
   },
   
   // ========== AUTHENTICATION ==========
- auth: {
-  maxLoginAttempts: 5,
-  lockoutDuration: 15 * 60 * 1000
-},
+  auth: {
+    maxLoginAttempts: 5,
+    lockoutDuration: 15 * 60 * 1000 // 15 minutes
+  },
   
   // ========== TWILIO ==========
-twilio: {
-  accountSid: process.env.TWILIO_ACCOUNT_SID,
-  authToken: process.env.TWILIO_AUTH_TOKEN,
-  whatsappFrom: process.env.TWILIO_WHATSAPP_FROM,
-  webhookUrl: process.env.WEBHOOK_URL || 'https://taxi-system.onrender.com',
-  maxRetries: 3,
-  retryDelay: 1000,
-  rateLimit: {
-    maxMessagesPerMinute: 100,
-    delayBetweenMessages: 500 // ms
-  }
-},
+  twilio: {
+    accountSid: process.env.TWILIO_ACCOUNT_SID,
+    authToken: process.env.TWILIO_AUTH_TOKEN,
+    whatsappFrom: process.env.TWILIO_WHATSAPP_FROM,
+    webhookUrl: process.env.WEBHOOK_URL || 'https://taxi-system.onrender.com',
+    maxRetries: 3,
+    retryDelay: 1000,
+    rateLimit: {
+      maxMessagesPerMinute: 100,
+      delayBetweenMessages: 500 // ms
+    }
+  },
   
   // ========== RATE LIMITING ==========
   rateLimit: {
@@ -165,27 +165,15 @@ twilio: {
  * @throws {Error} if required variables are missing
  */
 export function validateConfig() {
-<<<<<<< Updated upstream
- const required = [
-  'MONGODB_URI',
-  'JWT_SECRET',
-  'ADMIN_PASSWORD_HASH',
-  'TWILIO_ACCOUNT_SID',
-  'TWILIO_AUTH_TOKEN',
-  'TWILIO_WHATSAPP_FROM'
-];
-  
-=======
   const required = [
     'MONGODB_URI',
     'JWT_SECRET',
-    'ADMIN_PASSWORD_HASH', // במקום ADMIN_PASSWORD
+    'ADMIN_PASSWORD_HASH', // משתמשים ב-bcrypt hash במקום plain password
     'TWILIO_ACCOUNT_SID',
     'TWILIO_AUTH_TOKEN',
     'TWILIO_WHATSAPP_FROM'
   ];
 
->>>>>>> Stashed changes
   const missing = required.filter(key => !process.env[key]);
 
   if (missing.length > 0) {
@@ -196,13 +184,10 @@ export function validateConfig() {
   if ((process.env.JWT_SECRET || '').length < 32) {
     console.warn('⚠️  WARNING: JWT_SECRET is too short. Use at least 32 characters for security.');
   }
-<<<<<<< Updated upstream
-  
-=======
 
->>>>>>> Stashed changes
   return true;
 }
+
 /**
  * Get config value by path
  * @param {string} path - Dot-separated path (e.g., 'db.uri')
