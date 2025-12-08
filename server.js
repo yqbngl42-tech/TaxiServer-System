@@ -26,6 +26,7 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import crypto from 'crypto';
+import { authenticateAdmin } from './middlewares/auth.js';
 
 // Models
 import Ride from "./models/Ride.js";
