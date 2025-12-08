@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎓 מדריך למשתמש - מערכת מוניות</title>
+  <link rel="stylesheet" href="responsive.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    
+    .help-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .help-header {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    
+    .help-header h1 {
+      font-size: 2.5rem;
+      color: #667eea;
+      margin-bottom: 0.5rem;
+    }
+    
+    .help-header p {
+      font-size: 1.2rem;
+      color: #6b7280;
+    }
+    
+    .search-box-help {
+      width: 100%;
+      max-width: 600px;
+      margin: 1.5rem auto 0;
+      padding: 1rem 1.5rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 2rem;
+      font-size: 1.1rem;
+    }
+    
+    .tabs-container {
+      background: white;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    
+    .tabs-nav-help {
+      display: flex;
+      overflow-x: auto;
+      background: #f9fafb;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    
+    @media (max-width: 767px) {
+      .tabs-nav-help {
+        flex-wrap: nowrap;
+      }
+    }
+    
+    .tab-help {
+      flex: 1;
+      min-width: 150px;
+      padding: 1.5rem;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #6b7280;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    
+    @media (max-width: 767px) {
+      .tab-help {
+        padding: 1rem;
+        font-size: 0.95rem;
+      }
+    }
+    
+    .tab-help:hover {
+      background: white;
+      color: #667eea;
+    }
+    
+    .tab-help.active {
+      background: white;
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+    
+    .tab-content-help {
+      display: none;
+      padding: 2rem;
+    }
+    
+    @media (max-width: 767px) {
+      .tab-content-help {
+        padding: 1.5rem;
+      }
+    }
+    
+    .tab-content-help.active {
+      display: block;
+    }
+    
+    .tutorial-card {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    
+    .tutorial-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+    
+    .tutorial-card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    @media (max-width: 767px) {
+      .tutorial-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+    
+    .tutorial-icon {
+      font-size: 3rem;
+      flex-shrink: 0;
+    }
+    
+    .tutorial-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    
+    @media (max-width: 767px) {
+      .tutorial-title {
+        font-size: 1.25rem;
+      }
+    }
+    
+    .tutorial-desc {
+      color: #6b7280;
+      margin-bottom: 1rem;
+      line-height: 1.8;
+    }
+    
+    .tutorial-steps {
+      background: #f9fafb;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      display: none;
+    }
+    
+    .tutorial-card.expanded .tutorial-steps {
+      display: block;
+    }
+    
+    .step {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    @media (max-width: 767px) {
+      .step {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+    
+    .step:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    
+    .step-number {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    .step-content h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: #1f2937;
+    }
+    
+    .step-content p {
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 */
+      margin: 1rem 0;
+      background: #000;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    
+    .video-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      font-size: 4rem;
+    }
+    
+    .faq-item {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .faq-item:hover {
+      border-color: #667eea;
+    }
+    
+    .faq-question {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1f2937;
+    }
+    
+    .faq-icon {
+      font-size: 1.5rem;
+      transition: transform 0.2s;
+    }
+    
+    .faq-item.expanded .faq-icon {
+      transform: rotate(180deg);
+    }
+    
+    .faq-answer {
+      display: none;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e5e7eb;
+      color: #6b7280;
+      line-height: 1.8;
+    }
+    
+    .faq-item.expanded .faq-answer {
+      display: block;
+    }
+    
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    @media (max-width: 767px) {
+      .quick-links {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .quick-link {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .quick-link:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .quick-link-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .quick-link-title {
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+    
+    .quick-link-desc {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+    
+    .support-box {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+    
+    .support-box h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .support-box p {
+      margin-bottom: 1.5rem;
+      opacity: 0.95;
+    }
+    
+    .support-box .btn {
+      background: white;
+      color: #10b981;
+    }
+    
+    .glossary-item {
+      background: white;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .glossary-term {
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 0.5rem;
+    }
+    
+    .glossary-def {
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="help-container">
+    
+    <!-- Header -->
+    <div class="help-header">
+      <h1>🎓 מדריך למשתמש</h1>
+      <p>כל מה שצריך לדעת על מערכת הניהול</p>
+      <input type="text" class="search-box-help" id="search-help" placeholder="🔍 חפש בעזרה...">
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tabs-container">
+      <div class="tabs-nav-help">
+        <button class="tab-help active" data-tab="getting-started">🚀 התחלה מהירה</button>
+        <button class="tab-help" data-tab="features">✨ תכונות</button>
+        <button class="tab-help" data-tab="tutorials">📚 מדריכים</button>
+        <button class="tab-help" data-tab="faq">❓ שאלות ותשובות</button>
+        <button class="tab-help" data-tab="glossary">📖 מילון מונחים</button>
+      </div>
+      
+      <!-- Tab: Getting Started -->
+      <div class="tab-content-help active" id="tab-getting-started">
+        <h2 style="margin-bottom: 1.5rem;">🚀 ברוכים הבאים למערכת!</h2>
+        <p style="font-size: 1.1rem; color: #6b7280; margin-bottom: 2rem;">
+          מדריך זה יעזור לך להתחיל לעבוד עם המערכת בקלות. בחר באחת האופציות למטה:
+        </p>
+        
+        <div class="quick-links">
+          <a href="#" class="quick-link" onclick="showTab('tutorials'); scrollToElement('tutorial-registration'); return false;">
+            <div class="quick-link-icon">👤</div>
+            <div class="quick-link-title">רישום נהגים</div>
+            <div class="quick-link-desc">איך לאשר נהגים חדשים</div>
+          </a>
+          
+          <a href="#" class="quick-link" onclick="showTab('tutorials'); scrollToElement('tutorial-rides'); return false;">
+            <div class="quick-link-icon">🚖</div>
+            <div class="quick-link-title">ניהול נסיעות</div>
+            <div class="quick-link-desc">יצירה וניהול של נסיעות</div>
+          </a>
+          
+          <a href="#" class="quick-link" onclick="showTab('tutorials'); scrollToElement('tutorial-messages'); return false;">
+            <div class="quick-link-icon">💬</div>
+            <div class="quick-link-title">שליחת הודעות</div>
+            <div class="quick-link-desc">תקשורת עם נהגים</div>
+          </a>
+          
+          <a href="#" class="quick-link" onclick="showTab('tutorials'); scrollToElement('tutorial-reports'); return false;">
+            <div class="quick-link-icon">📊</div>
+            <div class="quick-link-title">דוחות</div>
+            <div class="quick-link-desc">צפייה בסטטיסטיקות</div>
+          </a>
+        </div>
+        
+        <div class="video-container" style="margin-top: 2rem;">
+          <div class="video-placeholder">
+            🎥<br>
+            <div style="font-size: 1.5rem; margin-top: 1rem;">סרטון הדרכה - בקרוב</div>
+          </div>
+        </div>
+        
+        <div class="support-box">
+          <h3>💬 צריכים עזרה נוספת?</h3>
+          <p>צוות התמיכה שלנו כאן בשבילך!</p>
+          <button class="btn btn-lg">📞 צור קשר עם התמיכה</button>
+        </div>
+      </div>
+      
+      <!-- Tab: Features -->
+      <div class="tab-content-help" id="tab-features">
+        <h2 style="margin-bottom: 1.5rem;">✨ תכונות המערכת</h2>
+        
+        <div class="tutorial-card">
+          <div class="tutorial-card-header">
+            <div class="tutorial-icon">📋</div>
+            <div>
+              <div class="tutorial-title">Dashboard - לוח בקרה</div>
+            </div>
+          </div>
+          <div class="tutorial-desc">
+            מסך הבית של המערכת. כאן תראה סטטיסטיקות כלליות, נסיעות אחרונות, ורווחים.
+          </div>
+          <ul style="color: #6b7280; padding-right: 2rem;">
+            <li>סטטיסטיקות real-time</li>
+            <li>נסיעות פעילות</li>
+            <li>גרפים ותרשימים</li>
+            <li>עדכונים אוטומטיים</li>
+          </ul>
+        </div>
+        
+        <div class="tutorial-card">
+          <div class="tutorial-card-header">
+            <div class="tutorial-icon">👨‍✈️</div>
+            <div>
+              <div class="tutorial-title">ניהול נהגים</div>
+            </div>
+          </div>
+          <div class="tutorial-desc">
+            צפייה וניהול של כל הנהגים במערכת. אישור רישומים חדשים, חסימה/הסרת חסימה, ועוד.
+          </div>
+          <ul style="color: #6b7280; padding-right: 2rem;">
+            <li>רשימת כל הנהגים</li>
+            <li>אישור רישומים חדשים</li>
+            <li>פרופיל מלא לכל נהג</li>
+            <li>חסימה והסרת חסימה</li>
+            <li>היסטוריית נסיעות</li>
+          </ul>
+        </div>
+        
+        <div class="tutorial-card">
+          <div class="tutorial-card-header">
+            <div class="tutorial-icon">🚖</div>
+            <div>
+              <div class="tutorial-title">ניהול נסיעות</div>
+            </div>
+          </div>
+          <div class="tutorial-desc">
+            יצירה וניהול של נסיעות. מעקב אחרי סטטוסים, חיפוש וסינון.
+          </div>
+          <ul style="color: #6b7280; padding-right: 2rem;">
+            <li>יצירת נסיעה חדשה</li>
+            <li>שיוך נהג אוטומטי</li>
+            <li>מעקב אחרי סטטוס</li>
+            <li>היסטוריה מלאה</li>
+          </ul>
+        </div>
+        
+        <div class="tutorial-card">
+          <div class="tutorial-card-header">
+            <div class="tutorial-icon">💬</div>
+            <div>
+              <div class="tutorial-title">שליחת הודעות</div>
+            </div>
+          </div>
+          <div class="tutorial-desc">
+            תקשורת ישירה עם נהגים דרך WhatsApp. הכל דרך הבוט, ללא עלות נוספת.
+          </div>
+          <ul style="color: #6b7280; padding-right: 2rem;">
+            <li>שליחה ישירה דרך הבוט</li>
+            <li>ללא עלות (לא דרך Twilio)</li>
+            <li>מהיר ופשוט</li>
+          </ul>
+        </div>
+        
+        <div class="tutorial-card">
+          <div class="tutorial-card-header">
+            <div class="tutorial-icon">📊</div>
+            <div>
+              <div class="tutorial-title">דוחות ואנליטיקות</div>
+            </div>
+          </div>
+          <div class="tutorial-desc">
+            דוחות מפורטים, גרפים, וסטטיסטיקות. ייצוא נתונים לExcel.
+          </div>
+          <ul style="color: #6b7280; padding-right: 2rem;">
+            <li>דוחות יומיים/שבועיים/חודשיים</li>
+            <li>גרפים אינטראקטיביים</li>
+            <li>ייצוא ל-Excel</li>
+            <li>מעקב רווחים</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Tab: Tutorials -->
+      <div class="tab-content-help" id="tab-tutorials">
+        <h2 style="margin-bottom: 1.5rem;">📚 מדריכים מפורטים</h2>
+        
+        <!-- Tutorial 1: Registration -->
+        <div class="tutorial-card" id="tutorial-registration" onclick="toggleTutorial(this)">
+          <div class="tutorial-card-header">
+            <div class="tutorial-icon">📝</div>
+            <div>
+              <div class="tutorial-title">איך לאשר נהג חדש?</div>
+            </div>
+          </div>
+          <div class="tutorial-desc">
+            מדריך צעד אחר צעד לאישור נהגים חדשים שנרשמו למערכת דרך WhatsApp.
+          </div>
+          <div class="tutorial-steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>כניסה לדף רישומים</h4>
+                <p>לחץ על "רישומים ממתינים" בתפריט הצד. תראה רשימת כל הנהגים שנרשמו ומחכים לאישור.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>בחר נהג לבדיקה</h4>
+                <p>לחץ על כפתור "צפה" ליד שם הנהג. יפתח פרופיל מלא עם כל הפרטים.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>בדוק מסמכים</h4>
+                <p>לחץ על טאב "מסמכים". תראה 3 מסמכים: רישיון נהיגה, רישיון רכב, וביטוח. לחץ "צפה" על כל מסמך לבדיקה מפורטת.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h4>אמת מסמכים</h4>
+                <p>אם המסמך תקין, סמן "✓ מאומת" בחלון הצפייה. המסמך יישמר כמאומת במערכת.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">5</div>
+              <div class="step-content">
+                <h4>אשר או דחה</h4>
+                <p>בראש העמוד, לחץ "✓ אשר" לאישור הנהג, או "✗ דחה" אם יש בעיה. במקרה של דחייה, כתוב סיבה ברורה.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">6</div>
+              <div class="step-content">
+                <h4>הנהג מקבל עדכון</h4>
+                <p>הנהג יקבל הודעה אוטומטית ב-WhatsApp עם התוצאה ומזהה נהג (אם אושר).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tutorial 2: Create Ride -->
+        <div class="tutorial-card" id="tutorial-rides" onclick="toggleTutorial(this)">
+          <div class="tutorial-card-header">
+            <div class="tutorial-icon">🚖</div>
+            <div>
+              <div class="tutorial-title">איך ליצור נסיעה חדשה?</div>
+            </div>
+          </div>
+          <div class="tutorial-desc">
+            מדריך ליצירת נסיעה חדשה והפצתה לנהגים.
+          </div>
+          <div class="tutorial-steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>כניסה לניהול נסיעות</h4>
+                <p>לחץ על "נסיעות" בתפריט. תראה רשימת כל הנסיעות.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>לחץ "נסיעה חדשה"</h4>
+                <p>כפתור ירוק בראש הדף. יפתח טופס.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>מלא פרטים</h4>
+                <p>שם לקוח, טלפון, כתובת איסוף, יעד, מחיר, וזמן איסוף.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h4>בחר קבוצה</h4>
+                <p>בחר לאיזה קבוצות WhatsApp להפיץ את הנסיעה.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">5</div>
+              <div class="step-content">
+                <h4>שלח</h4>
+                <p>לחץ "יצירה והפצה". המערכת תיצור קישור ייחודי ותפיץ לנהגים.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">6</div>
+              <div class="step-content">
+                <h4>מעקב</h4>
+                <p>נהג שלוחץ על הקישור משויך אוטומטית. תראה את העדכונים ב-Dashboard.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tutorial 3: Send Message -->
+        <div class="tutorial-card" id="tutorial-messages" onclick="toggleTutorial(this)">
+          <div class="tutorial-card-header">
+            <div class="tutorial-icon">💬</div>
+            <div>
+              <div class="tutorial-title">איך לשלוח הודעה לנהג?</div>
+            </div>
+          </div>
+          <div class="tutorial-desc">
+            מדריך לשליחת הודעות ישירות לנהגים דרך WhatsApp.
+          </div>
+          <div class="tutorial-steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>פתח פרופיל נהג</h4>
+                <p>עבור ל"נהגים" ולחץ על שם הנהג.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>לחץ "שלח הודעה"</h4>
+                <p>כפתור כחול בראש העמוד עם אייקון 💬.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>כתוב הודעה</h4>
+                <p>בחלון שנפתח, כתוב את ההודעה שרוצה לשלוח.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h4>שלח</h4>
+                <p>לחץ "📤 שלח". ההודעה נשלחת דרך הבוט ישירות ל-WhatsApp של הנהג.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">5</div>
+              <div class="step-content">
+                <h4>הנהג מקבל</h4>
+                <p>הנהג יקבל את ההודעה תוך כמה שניות ב-WhatsApp שלו.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tutorial 4: Reports -->
+        <div class="tutorial-card" id="tutorial-reports" onclick="toggleTutorial(this)">
+          <div class="tutorial-card-header">
+            <div class="tutorial-icon">📊</div>
+            <div>
+              <div class="tutorial-title">איך לצפות בדוחות?</div>
+            </div>
+          </div>
+          <div class="tutorial-desc">
+            מדריך לצפייה בדוחות וסטטיסטיקות.
+          </div>
+          <div class="tutorial-steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>כניסה לאנליטיקות</h4>
+                <p>לחץ על "אנליטיקות" בתפריט הצד.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>בחר תקופה</h4>
+                <p>בחר "יומי", "שבועי", או "חודשי" לפי הצורך.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>צפה בגרפים</h4>
+                <p>תראה גרפים של נסיעות, רווחים, ודירוגים.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h4">ייצוא נתונים</h4>
+                <p>לחץ "ייצוא ל-Excel" להורדת קובץ עם כל הנתונים.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tab: FAQ -->
+      <div class="tab-content-help" id="tab-faq">
+        <h2 style="margin-bottom: 1.5rem;">❓ שאלות נפוצות</h2>
+        
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            מה זה "רישום אוטומטי"?
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>נהג חדש שולח "הרשמה" ב-WhatsApp, והבוט שואל אותו 8 שאלות ומבקש 3 תמונות (רישיון נהיגה, רישיון רכב, ביטוח). כל זה אוטומטי! אחר כך אתה רק צריך לאשר אותו במערכת.</p>
+          </div>
+        </div>
+        
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            איך נהג מקבל נסיעה?
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>אתה יוצר נסיעה במערכת, המערכת שולחת קישור ייחודי לקבוצות WhatsApp. הנהג הראשון שלוחץ על הקישור מקבל את הנסיעה אוטומטית. פשוט וחכם!</p>
+          </div>
+        </div>
+        
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            האם צריך לשלם על הודעות WhatsApp?
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>לא! הבוט שולח הודעות דרך WhatsApp Web בחינם. לא דרך Twilio, לא עלויות נוספות. פשוט חינם!</p>
+          </div>
+        </div>
+        
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            מה קורה אם נהג חסום?
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>נהג חסום לא יכול לקבל נסיעות חדשות. אם הוא מנסה ללחוץ על קישור נסיעה, המערכת אוטומטית מודיעה לו שהוא חסום עם סיבת החסימה. אתה תמיד יכול להסיר את החסימה בפרופיל שלו.</p>
+          </div>
+        </div>
+        
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            איך לדעת שנהג חדש נרשם?
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>הדאשבורד מתעדכן בזמן אמת! תראה מונה של "רישומים ממתינים". גם יש לך לוג פעילות שמראה כל רישום חדש.</p>
+          </div>
+        </div>
+        
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            המערכת תומכת במובייל?
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>כן! המערכת בנויה Mobile-First. אתה יכול לנהל הכל מהטלפון - לאשר נהגים, ליצור נסיעות, לשלוח הודעות, ולצפות בדוחות. הכל עובד מצוין גם במובייל!</p>
+          </div>
+        </div>
+        
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            איפה אני רואה את המסמכים של הנהג?
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>בפרופיל הנהג, לחץ על טאב "מסמכים". תראה 3 כרטיסים עם כפתור "צפה". לחץ עליו ותוכל לראות את התמונה בגודל מלא, לזום, לסובב, ולהוריד.</p>
+          </div>
+        </div>
+        
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            מה זה "לוג פעילות"?
+            <span class="faq-icon">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>רישום מלא של כל מה שקורה במערכת - מי נרשם, מי אושר, מי חסום, איזה נסיעות נוצרו, וכו'. יש לוג כללי ולוג לכל נהג בנפרד.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tab: Glossary -->
+      <div class="tab-content-help" id="tab-glossary">
+        <h2 style="margin-bottom: 1.5rem;">📖 מילון מונחים</h2>
+        <p style="color: #6b7280; margin-bottom: 2rem;">הסבר למונחים שתראה במערכת:</p>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">Dashboard (לוח בקרה)</div>
+          <div class="glossary-def">מסך הבית של המערכת שמציג סטטיסטיקות כלליות ועדכונים.</div>
+        </div>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">Driver ID (מזהה נהג)</div>
+          <div class="glossary-def">מספר ייחודי לכל נהג בפורמט DRV-XXXXXX. מקבלים אותו אחרי האישור.</div>
+        </div>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">סטטוס נסיעה</div>
+          <div class="glossary-def">מצב הנסיעה: נוצר → הופץ → שויך → בדרך → הגיע → הסתיים/בוטל.</div>
+        </div>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">סטטוס רישום</div>
+          <div class="glossary-def">מצב הרישום של נהג: ממתין לאישור → מאושר → נדחה.</div>
+        </div>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">קישור נסיעה</div>
+          <div class="glossary-def">URL ייחודי שנשלח לנהגים. הנהג הראשון שלוחץ מקבל את הנסיעה.</div>
+        </div>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">Token (אסימון)</div>
+          <div class="glossary-def">קוד אבטחה שמאפשר לך להישאר מחובר למערכת.</div>
+        </div>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">WebSocket</div>
+          <div class="glossary-def">טכנולוגיה שמאפשרת עדכונים בזמן אמת בלי לרענן את הדף.</div>
+        </div>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">בוט (Bot)</div>
+          <div class="glossary-def">תוכנה אוטומטית שמנהלת את התקשורת ב-WhatsApp.</div>
+        </div>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">Twilio</div>
+          <div class="glossary-def">שירות חיצוני לשליחת SMS. המערכת משתמשת בו רק לקבלת הודעות מנהגים.</div>
+        </div>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">חסימה (Block)</div>
+          <div class="glossary-def">מניעת נהג מלקבל נסיעות חדשות. ניתן להסרה בכל עת.</div>
+        </div>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">דירוג (Rating)</div>
+          <div class="glossary-def">ציון שהלקוח נותן לנהג בסוף הנסיעה, מ-1 עד 5 כוכבים.</div>
+        </div>
+        
+        <div class="glossary-item">
+          <div class="glossary-term">לוג פעילות (Activity Log)</div>
+          <div class="glossary-def">רישום מפורט של כל הפעולות שקורות במערכת.</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Back Button -->
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="index.html" class="btn btn-lg btn-secondary">← חזור לדאשבורד</a>
+    </div>
+    
+  </div>
+  
+  <script src="help-system.js"></script>
+</body>
+</html>

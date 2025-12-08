@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>👤 פרופיל נהג</title>
+  
+  <!-- Responsive CSS -->
+  <link rel="stylesheet" href="responsive.css">
+  
+  <!-- Help Button CSS -->
+  <link rel="stylesheet" href="help-button.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f3f4f6;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    /* Header with Actions */
+    .profile-header {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .driver-info-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .driver-avatar-large {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 2em;
+    }
+    
+    .driver-details-header h1 {
+      font-size: 2em;
+      color: #1f2937;
+      margin-bottom: 5px;
+    }
+    
+    .driver-meta {
+      display: flex;
+      gap: 20px;
+      color: #6b7280;
+      font-size: 0.95em;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+    
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .status-approved {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .status-blocked {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .btn-warning {
+      background: #f59e0b;
+      color: white;
+    }
+    
+    .btn-info {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
+    
+    /* Tabs Navigation */
+    .tabs-nav {
+      background: white;
+      border-radius: 12px;
+      padding: 0;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .tabs-nav-list {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .tab-button {
+      flex: 1;
+      padding: 18px 25px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.05em;
+      font-weight: 600;
+      color: #6b7280;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .tab-button:hover {
+      background: #f9fafb;
+      color: #667eea;
+    }
+    
+    .tab-button.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+      background: #f9fafb;
+    }
+    
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .content-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    
+    .card-title {
+      font-size: 1.4em;
+      color: #1f2937;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .info-item {
+      padding: 15px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    
+    .info-label {
+      font-size: 0.9em;
+      color: #6b7280;
+      margin-bottom: 5px;
+    }
+    
+    .info-value {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    
+    /* Documents Grid */
+    .documents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    
+    .document-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.2s;
+      background: white;
+    }
+    
+    .document-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .document-icon {
+      font-size: 4em;
+      margin-bottom: 15px;
+    }
+    
+    .document-title {
+      font-size: 1.2em;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+    
+    .document-status {
+      margin-bottom: 15px;
+    }
+    
+    .document-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    
+    /* History Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th {
+      background: #667eea;
+      color: white;
+      padding: 12px;
+      text-align: right;
+      font-weight: 600;
+    }
+    
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    tr:hover {
+      background: #f9fafb;
+    }
+    
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      padding: 25px;
+      border-radius: 12px;
+      color: white;
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 2.5em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 1em;
+      opacity: 0.95;
+    }
+    
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-right: 30px;
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #e5e7eb;
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding-bottom: 30px;
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      right: -6px;
+      top: 5px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #667eea;
+      border: 3px solid white;
+      box-shadow: 0 0 0 2px #667eea;
+    }
+    
+    .timeline-content {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 8px;
+      margin-left: 30px;
+    }
+    
+    .timeline-date {
+      font-size: 0.85em;
+      color: #6b7280;
+      margin-bottom: 5px;
+    }
+    
+    .timeline-text {
+      color: #1f2937;
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 900px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 2em;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    
+    .document-viewer {
+      text-align: center;
+    }
+    
+    .document-viewer img {
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .viewer-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #374151;
+    }
+    
+    .form-group textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1em;
+      resize: vertical;
+    }
+    
+    .form-group input[type="checkbox"] {
+      margin-left: 8px;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b7280;
+    }
+    
+    .empty-state-icon {
+      font-size: 4em;
+      margin-bottom: 15px;
+    }
+    
+    /* Rating Stars */
+    .rating {
+      display: inline-flex;
+      gap: 5px;
+      font-size: 1.5em;
+    }
+    
+    .star {
+      color: #fbbf24;
+    }
+    
+    .star.empty {
+      color: #d1d5db;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Header with Driver Info and Actions -->
+    <div class="profile-header">
+      <div class="driver-info-header">
+        <div class="driver-avatar-large" id="driver-avatar">?</div>
+        <div class="driver-details-header">
+          <h1 id="driver-name">טוען...</h1>
+          <div class="driver-meta">
+            <span id="driver-id">-</span>
+            <span id="driver-phone">-</span>
+            <span id="driver-status-badge" class="status-badge">-</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="header-actions" id="header-actions">
+        <!-- Buttons will be inserted by JavaScript -->
+      </div>
+    </div>
+    
+    <!-- Tabs Navigation -->
+    <nav class="tabs-nav">
+      <ul class="tabs-nav-list">
+        <li>
+          <button class="tab-button active" data-tab="overview">
+            📋 סקירה כללית
+          </button>
+        </li>
+        <li>
+          <button class="tab-button" data-tab="documents">
+            📷 מסמכים
+          </button>
+        </li>
+        <li>
+          <button class="tab-button" data-tab="rides">
+            🚖 היסטוריית נסיעות
+          </button>
+        </li>
+        <li>
+          <button class="tab-button" data-tab="earnings">
+            💰 רווחים
+          </button>
+        </li>
+        <li>
+          <button class="tab-button" data-tab="ratings">
+            ⭐ דירוגים
+          </button>
+        </li>
+        <li>
+          <button class="tab-button" data-tab="activity">
+            📝 לוג פעילות
+          </button>
+        </li>
+      </ul>
+    </nav>
+    
+    <!-- Tab: Overview -->
+    <div class="tab-content active" id="tab-overview">
+      
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="stat-rides">0</div>
+          <div class="stat-label">נסיעות</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="stat-completed">0</div>
+          <div class="stat-label">הושלמו</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="stat-rating">5.0</div>
+          <div class="stat-label">דירוג ממוצע</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="stat-earnings">₪0</div>
+          <div class="stat-label">סה"כ רווחים</div>
+        </div>
+      </div>
+      
+      <!-- Personal Info -->
+      <div class="content-card">
+        <h2 class="card-title">📋 פרטים אישיים</h2>
+        <div class="info-grid" id="personal-info">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </div>
+      
+      <!-- Vehicle Info -->
+      <div class="content-card">
+        <h2 class="card-title">🚗 פרטי רכב</h2>
+        <div class="info-grid" id="vehicle-info">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </div>
+      
+      <!-- Admin Notes -->
+      <div class="content-card">
+        <h2 class="card-title">📝 הערות מנהל</h2>
+        <div class="form-group">
+          <textarea id="admin-notes" placeholder="הוסף הערות על הנהג..."></textarea>
+        </div>
+        <button class="btn btn-info" onclick="saveAdminNotes()">💾 שמור הערות</button>
+      </div>
+      
+    </div>
+    
+    <!-- Tab: Documents -->
+    <div class="tab-content" id="tab-documents">
+      <div class="content-card">
+        <h2 class="card-title">📷 מסמכים</h2>
+        <div class="documents-grid" id="documents-grid">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tab: Rides History -->
+    <div class="tab-content" id="tab-rides">
+      <div class="content-card">
+        <h2 class="card-title">🚖 היסטוריית נסיעות</h2>
+        <div id="rides-container">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tab: Earnings -->
+    <div class="tab-content" id="tab-earnings">
+      <div class="content-card">
+        <h2 class="card-title">💰 רווחים</h2>
+        <div class="info-grid" id="earnings-info">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tab: Ratings -->
+    <div class="tab-content" id="tab-ratings">
+      <div class="content-card">
+        <h2 class="card-title">⭐ דירוגים</h2>
+        <div id="ratings-container">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tab: Activity Log -->
+    <div class="tab-content" id="tab-activity">
+      <div class="content-card">
+        <h2 class="card-title">📝 לוג פעילות</h2>
+        <div class="timeline" id="activity-timeline">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- Modal: Document Viewer -->
+  <div class="modal" id="document-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="document-title">מסמך</h2>
+        <button class="close-btn" onclick="closeDocumentModal()">&times;</button>
+      </div>
+      <div class="document-viewer">
+        <img id="document-image" src="" alt="מסמך" style="transform: rotate(0deg) scale(1);">
+        <div class="viewer-controls">
+          <button class="btn btn-info" onclick="zoomIn()">🔍+ זום</button>
+          <button class="btn btn-info" onclick="zoomOut()">🔍- הקטן</button>
+          <button class="btn btn-info" onclick="rotateImage()">↻ סובב</button>
+          <button class="btn btn-secondary" onclick="downloadDocument()">⬇️ הורדה</button>
+        </div>
+        <div class="form-group" style="margin-top: 20px; text-align: right;">
+          <label>
+            <input type="checkbox" id="document-verified" onchange="markDocumentVerified()">
+            ✓ מסמך מאומת
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal: Send Message -->
+  <div class="modal" id="message-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>💬 שלח הודעה לנהג</h2>
+        <button class="close-btn" onclick="closeModal('message-modal')">&times;</button>
+      </div>
+      <div class="form-group">
+        <label for="message-text">הודעה:</label>
+        <textarea id="message-text" placeholder="כתוב את ההודעה כאן..."></textarea>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn btn-info" onclick="sendMessage()">📤 שלח</button>
+        <button class="btn btn-secondary" onclick="closeModal('message-modal')">ביטול</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal: Approve -->
+  <div class="modal" id="approve-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>✅ אישור נהג</h2>
+        <button class="close-btn" onclick="closeModal('approve-modal')">&times;</button>
+      </div>
+      <p>האם אתה בטוח שברצונך לאשר את הנהג <strong id="approve-driver-name"></strong>?</p>
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+        <button class="btn btn-success" onclick="confirmApprove()">✓ אשר</button>
+        <button class="btn btn-secondary" onclick="closeModal('approve-modal')">ביטול</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal: Reject -->
+  <div class="modal" id="reject-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>❌ דחיית נהג</h2>
+        <button class="close-btn" onclick="closeModal('reject-modal')">&times;</button>
+      </div>
+      <p>אתה עומד לדחות את הנהג <strong id="reject-driver-name"></strong></p>
+      <div class="form-group">
+        <label for="reject-reason">סיבת הדחייה: *</label>
+        <textarea id="reject-reason" placeholder="הסבר מדוע הבקשה נדחית..."></textarea>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn btn-danger" onclick="confirmReject()">✗ דחה</button>
+        <button class="btn btn-secondary" onclick="closeModal('reject-modal')">ביטול</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal: Block -->
+  <div class="modal" id="block-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🚫 חסימת נהג</h2>
+        <button class="close-btn" onclick="closeModal('block-modal')">&times;</button>
+      </div>
+      <p>אתה עומד לחסום את הנהג <strong id="block-driver-name"></strong></p>
+      <div class="form-group">
+        <label for="block-reason">סיבת החסימה: *</label>
+        <textarea id="block-reason" placeholder="למה לחסום את הנהג?"></textarea>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn btn-danger" onclick="confirmBlock()">🚫 חסום</button>
+        <button class="btn btn-secondary" onclick="closeModal('block-modal')">ביטול</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="driver-profile.js"></script>
+  
+  <!-- Help Button - auto inject -->
+  <script src="help-button.js"></script>
+  
+</body>
+</html>

@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📝 רישומים ממתינים לאישור</title>
+  
+  <!-- Responsive CSS -->
+  <link rel="stylesheet" href="responsive.css">
+  
+  <!-- Help Button CSS -->
+  <link rel="stylesheet" href="help-button.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f3f4f6;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header h1 {
+      font-size: 2em;
+      color: #1f2937;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .btn-info {
+      background: #6366f1;
+      color: white;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 25px;
+      border-radius: 12px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+      font-size: 2.5em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 1.1em;
+      opacity: 0.95;
+    }
+    
+    .table-container {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      padding: 10px 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+    
+    .filter-select {
+      padding: 10px 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th {
+      background: #667eea;
+      color: white;
+      padding: 15px;
+      text-align: right;
+      font-weight: bold;
+    }
+    
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: middle;
+    }
+    
+    tr:hover {
+      background: #f9fafb;
+    }
+    
+    .driver-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .driver-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    
+    .driver-details {
+      flex: 1;
+    }
+    
+    .driver-name {
+      font-weight: bold;
+      color: #1f2937;
+      margin-bottom: 3px;
+    }
+    
+    .driver-phone {
+      color: #6b7280;
+      font-size: 0.9em;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.85em;
+      font-weight: bold;
+    }
+    
+    .badge-success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .badge-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .badge-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.9em;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .modal-header h2 {
+      color: #1f2937;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 2em;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #374151;
+    }
+    
+    .form-group textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1em;
+      resize: vertical;
+    }
+    
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 2px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Header -->
+    <div class="header">
+      <h1>📝 רישומים ממתינים לאישור</h1>
+      <button class="btn btn-primary" onclick="loadPendingRegistrations()">
+        🔄 רענן
+      </button>
+    </div>
+    
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-pending">-</div>
+        <div class="stat-label">ממתינים לאישור</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-approved-today">-</div>
+        <div class="stat-label">אושרו היום</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-rejected-today">-</div>
+        <div class="stat-label">נדחו היום</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-approval-rate">-</div>
+        <div class="stat-label">אחוז אישור</div>
+      </div>
+    </div>
+    
+    <!-- Table -->
+    <div class="table-container">
+      
+      <!-- Filters -->
+      <div class="filters">
+        <input type="text" class="search-box" placeholder="🔍 חיפוש לפי שם, טלפון או מספר רכב..." id="search">
+        <select class="filter-select" id="filter-area">
+          <option value="">כל האזורים</option>
+          <option value="תל אביב">תל אביב</option>
+          <option value="ירושלים">ירושלים</option>
+          <option value="חיפה">חיפה</option>
+          <option value="באר שבע">באר שבע</option>
+        </select>
+        <select class="filter-select" id="filter-documents">
+          <option value="">כל המסמכים</option>
+          <option value="complete">מלא (3/3)</option>
+          <option value="incomplete">חסר</option>
+        </select>
+      </div>
+      
+      <!-- Loading State -->
+      <div id="loading" style="text-align: center; padding: 40px; display: none;">
+        <div style="font-size: 3em; margin-bottom: 10px;">⏳</div>
+        <div style="font-size: 1.2em; color: #6b7280;">טוען רישומים...</div>
+      </div>
+      
+      <!-- Table -->
+      <table id="registrations-table">
+        <thead>
+          <tr>
+            <th>נהג</th>
+            <th>מזהה</th>
+            <th>רכב</th>
+            <th>אזור עבודה</th>
+            <th>מסמכים</th>
+            <th>תאריך רישום</th>
+            <th>פעולות</th>
+          </tr>
+        </thead>
+        <tbody id="registrations-tbody">
+          <!-- Rows will be inserted here by JavaScript -->
+        </tbody>
+      </table>
+      
+      <!-- Empty State -->
+      <div id="empty-state" style="text-align: center; padding: 60px; display: none;">
+        <div style="font-size: 4em; margin-bottom: 15px;">📭</div>
+        <div style="font-size: 1.5em; color: #6b7280; margin-bottom: 10px;">אין רישומים ממתינים</div>
+        <div style="color: #9ca3af;">כל הרישומים טופלו! 🎉</div>
+      </div>
+      
+    </div>
+    
+  </div>
+  
+  <!-- Modal: Approve -->
+  <div class="modal" id="approve-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>✅ אישור נהג</h2>
+        <button class="close-btn" onclick="closeModal('approve-modal')">&times;</button>
+      </div>
+      <div id="approve-driver-info"></div>
+      <div class="modal-footer">
+        <button class="btn btn-success" onclick="confirmApprove()">✓ אשר נהג</button>
+        <button class="btn btn-danger" onclick="closeModal('approve-modal')">ביטול</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal: Reject -->
+  <div class="modal" id="reject-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>❌ דחיית נהג</h2>
+        <button class="close-btn" onclick="closeModal('reject-modal')">&times;</button>
+      </div>
+      <div id="reject-driver-info"></div>
+      <div class="form-group">
+        <label for="reject-reason">סיבת הדחייה: *</label>
+        <textarea id="reject-reason" placeholder="הסבר מדוע הבקשה נדחית..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" onclick="confirmReject()">✗ דחה נהג</button>
+        <button class="btn btn-info" onclick="closeModal('reject-modal')">ביטול</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Configuration
+    const API_URL = 'http://localhost:3000'; // Change to your server URL
+    const TOKEN = localStorage.getItem('token'); // Get from login
+    
+    let currentDriverId = null;
+    let registrations = [];
+    
+    // Load pending registrations on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPendingRegistrations();
+      
+      // Setup filters
+      document.getElementById('search').addEventListener('input', filterTable);
+      document.getElementById('filter-area').addEventListener('change', filterTable);
+      document.getElementById('filter-documents').addEventListener('change', filterTable);
+    });
+    
+    // Load pending registrations
+    async function loadPendingRegistrations() {
+      const loading = document.getElementById('loading');
+      const emptyState = document.getElementById('empty-state');
+      const tbody = document.getElementById('registrations-tbody');
+      
+      loading.style.display = 'block';
+      emptyState.style.display = 'none';
+      tbody.innerHTML = '';
+      
+      try {
+        const response = await fetch(`${API_URL}/api/registrations/pending`, {
+          headers: {
+            'Authorization': `Bearer ${TOKEN}`
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.ok) {
+          registrations = data.drivers;
+          updateStats(registrations);
+          renderTable(registrations);
+        } else {
+          alert('שגיאה בטעינת הרישומים');
+        }
+      } catch (err) {
+        console.error('Error loading registrations:', err);
+        alert('שגיאת תקשורת עם השרת');
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+    
+    // Update stats
+    function updateStats(drivers) {
+      document.getElementById('stat-pending').textContent = drivers.length;
+      // TODO: Load today's approved/rejected from API
+      document.getElementById('stat-approved-today').textContent = '-';
+      document.getElementById('stat-rejected-today').textContent = '-';
+      document.getElementById('stat-approval-rate').textContent = '-';
+    }
+    
+    // Render table
+    function renderTable(drivers) {
+      const tbody = document.getElementById('registrations-tbody');
+      const emptyState = document.getElementById('empty-state');
+      
+      if (drivers.length === 0) {
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      tbody.innerHTML = drivers.map(driver => {
+        const initials = driver.name.split(' ').map(n => n[0]).join('');
+        const docsCount = countDocuments(driver.documents);
+        const docsBadge = docsCount === 3 
+          ? '<span class="badge badge-success">📷 3/3</span>'
+          : `<span class="badge badge-warning">📷 ${docsCount}/3 ⚠️</span>`;
+        
+        return `
+          <tr>
+            <td>
+              <div class="driver-info">
+                <div class="driver-avatar">${initials}</div>
+                <div class="driver-details">
+                  <div class="driver-name">${driver.name}</div>
+                  <div class="driver-phone">${driver.phone}</div>
+                </div>
+              </div>
+            </td>
+            <td><strong>${driver.driverId || 'ממתין'}</strong></td>
+            <td>
+              ${driver.vehicleType}<br>
+              <small style="color: #6b7280;">${driver.vehicleNumber}</small>
+            </td>
+            <td>${driver.workArea || '-'}</td>
+            <td>${docsBadge}</td>
+            <td>${formatDate(driver.createdAt)}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-info btn-sm" onclick="viewDriver('${driver._id}')">
+                  👁️ צפה
+                </button>
+                <button class="btn btn-success btn-sm" onclick="approveDriver('${driver._id}')">
+                  ✓ אשר
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="rejectDriver('${driver._id}')">
+                  ✗ דחה
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    // Count documents
+    function countDocuments(docs) {
+      if (!docs) return 0;
+      let count = 0;
+      if (docs.license && docs.license.url) count++;
+      if (docs.carLicense && docs.carLicense.url) count++;
+      if (docs.insurance && docs.insurance.url) count++;
+      return count;
+    }
+    
+    // Format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('he-IL') + '<br>' + 
+             date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+    }
+    
+    // Filter table
+    function filterTable() {
+      const searchTerm = document.getElementById('search').value.toLowerCase();
+      const areaFilter = document.getElementById('filter-area').value;
+      const docsFilter = document.getElementById('filter-documents').value;
+      
+      const filtered = registrations.filter(driver => {
+        const matchesSearch = driver.name.toLowerCase().includes(searchTerm) ||
+                             driver.phone.includes(searchTerm) ||
+                             driver.vehicleNumber.includes(searchTerm);
+        
+        const matchesArea = !areaFilter || driver.workArea === areaFilter;
+        
+        const docsCount = countDocuments(driver.documents);
+        const matchesDocs = !docsFilter || 
+                          (docsFilter === 'complete' && docsCount === 3) ||
+                          (docsFilter === 'incomplete' && docsCount < 3);
+        
+        return matchesSearch && matchesArea && matchesDocs;
+      });
+      
+      renderTable(filtered);
+    }
+    
+    // View driver
+    function viewDriver(driverId) {
+      // TODO: Open driver profile page
+      window.location.href = `driver-profile.html?id=${driverId}`;
+    }
+    
+    // Approve driver
+    function approveDriver(driverId) {
+      currentDriverId = driverId;
+      const driver = registrations.find(d => d._id === driverId);
+      document.getElementById('approve-driver-info').innerHTML = `
+        <p style="margin-bottom: 15px;">האם אתה בטוח שברצונך לאשר את הנהג:</p>
+        <div style="background: #f9fafb; padding: 15px; border-radius: 8px;">
+          <strong>${driver.name}</strong><br>
+          ${driver.phone}<br>
+          ${driver.vehicleType} (${driver.vehicleNumber})
+        </div>
+      `;
+      openModal('approve-modal');
+    }
+    
+    // Confirm approve
+    async function confirmApprove() {
+      try {
+        const response = await fetch(`${API_URL}/api/registrations/${currentDriverId}/approve`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.ok) {
+          closeModal('approve-modal');
+          alert('✅ הנהג אושר בהצלחה!');
+          loadPendingRegistrations();
+        } else {
+          alert('שגיאה: ' + data.error);
+        }
+      } catch (err) {
+        console.error('Error approving driver:', err);
+        alert('שגיאת תקשורת עם השרת');
+      }
+    }
+    
+    // Reject driver
+    function rejectDriver(driverId) {
+      currentDriverId = driverId;
+      const driver = registrations.find(d => d._id === driverId);
+      document.getElementById('reject-driver-info').innerHTML = `
+        <p style="margin-bottom: 15px;">אתה עומד לדחות את הנהג:</p>
+        <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <strong>${driver.name}</strong><br>
+          ${driver.phone}<br>
+          ${driver.vehicleType} (${driver.vehicleNumber})
+        </div>
+      `;
+      document.getElementById('reject-reason').value = '';
+      openModal('reject-modal');
+    }
+    
+    // Confirm reject
+    async function confirmReject() {
+      const reason = document.getElementById('reject-reason').value.trim();
+      
+      if (!reason) {
+        alert('אנא הזן סיבת דחייה');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_URL}/api/registrations/${currentDriverId}/reject`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${TOKEN}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ reason })
+        });
+        
+        const data = await response.json();
+        
+        if (data.ok) {
+          closeModal('reject-modal');
+          alert('❌ הנהג נדחה');
+          loadPendingRegistrations();
+        } else {
+          alert('שגיאה: ' + data.error);
+        }
+      } catch (err) {
+        console.error('Error rejecting driver:', err);
+        alert('שגיאת תקשורת עם השרת');
+      }
+    }
+    
+    // Modal functions
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+    }
+    
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+    
+    // Close modal on background click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeModal(modal.id);
+        }
+      });
+    });
+  </script>
+  
+  <!-- Help Button - auto inject -->
+  <script src="help-button.js"></script>
+  
+</body>
+</html>

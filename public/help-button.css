@@ -1,0 +1,367 @@
+/* ===============================================
+   🆘 FLOATING HELP BUTTON
+   =============================================== */
+
+.help-button-float {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 999;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.help-button-float:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.help-button-float:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 767px) {
+  .help-button-float {
+    width: 56px;
+    height: 56px;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    font-size: 1.6rem;
+  }
+}
+
+/* Tooltip */
+.help-button-float::before {
+  content: 'עזרה';
+  position: absolute;
+  right: 70px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.help-button-float:hover::before {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .help-button-float::before {
+    display: none;
+  }
+}
+
+/* ===============================================
+   📚 HELP MENU
+   =============================================== */
+
+.help-menu {
+  position: fixed;
+  bottom: 5rem;
+  left: 2rem;
+  width: 320px;
+  max-height: 500px;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  z-index: 998;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.help-menu.active {
+  display: flex;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .help-menu {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    bottom: 4.5rem;
+    max-height: 60vh;
+  }
+}
+
+.help-menu-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.help-menu-header h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.help-menu-header p {
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+.help-menu-content {
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.help-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid transparent;
+}
+
+.help-menu-item:hover {
+  background: #f9fafb;
+  border-color: #667eea;
+}
+
+.help-menu-item-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.help-menu-item-content {
+  flex: 1;
+}
+
+.help-menu-item-title {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.help-menu-item-desc {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.help-menu-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.help-menu-footer .btn {
+  width: 100%;
+}
+
+/* ===============================================
+   💡 TOOLTIPS
+   =============================================== */
+
+[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  right: 50%;
+  transform: translateX(50%);
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1000;
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  [data-tooltip]::after {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+    max-width: 200px;
+    white-space: normal;
+  }
+}
+
+/* ===============================================
+   🎯 QUICK TIPS
+   =============================================== */
+
+.quick-tip {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid #fbbf24;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+@media (max-width: 767px) {
+  .quick-tip {
+    flex-direction: column;
+  }
+}
+
+.quick-tip-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.quick-tip-content h4 {
+  color: #92400e;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.quick-tip-content p {
+  color: #78350f;
+  line-height: 1.6;
+}
+
+/* ===============================================
+   🌟 FEATURE HIGHLIGHTS
+   =============================================== */
+
+.feature-highlight {
+  position: relative;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+  }
+}
+
+.feature-badge {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  z-index: 10;
+}
+
+/* ===============================================
+   📱 MOBILE OPTIMIZATIONS
+   =============================================== */
+
+@media (max-width: 767px) {
+  /* Touch-friendly help button */
+  .help-button-float {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Full-screen help menu on mobile */
+  .help-menu.mobile-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  
+  .help-menu.mobile-fullscreen .help-menu-header {
+    padding-top: calc(env(safe-area-inset-top) + 1.5rem);
+  }
+}
+
+/* ===============================================
+   🎨 THEME VARIATIONS
+   =============================================== */
+
+.help-button-float.primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.help-button-float.success {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.help-button-float.info {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.help-button-float.warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+/* ===============================================
+   ♿ ACCESSIBILITY
+   =============================================== */
+
+.help-button-float:focus {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
+.help-menu-item:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

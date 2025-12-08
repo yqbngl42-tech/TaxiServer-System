@@ -1,0 +1,87 @@
+{
+  "name": "taxi-system-backend",
+  "version": "2.1.0",
+  "description": "מערכת ניהול מוניות חכמה - שרת Backend מרכזי",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:twilio": "node test-twilio.js",
+    "generate-hash": "node generate-password.js",
+    "generate-password": "node generate-password-advanced.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "clean-logs": "node -e \"import('./utils/logsCleaner.js').then(m => m.cleanOldLogs(30))\"",
+    "build-indexes": "node scripts/build-indexes.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!**/node_modules/**",
+      "!**/tests/**",
+      "!**/coverage/**",
+      "!**/public/**"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "verbose": true
+  },
+  "keywords": [
+    "taxi",
+    "dispatch",
+    "whatsapp",
+    "automation",
+    "twilio",
+    "mongodb",
+    "express",
+    "backend",
+    "api"
+  ],
+  "author": "Taxi Smart Dispatch System",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "helmet": "^8.0.0",
+    "ioredis": "^5.3.2",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3",
+    "qrcode": "^1.5.3",
+    "socket.io": "^4.7.2",
+    "speakeasy": "^2.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "twilio": "^5.1.0",
+    "uuid": "^9.0.1",
+    "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/taxi-system-backend"
+  }
+}

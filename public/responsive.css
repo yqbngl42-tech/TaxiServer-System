@@ -1,0 +1,690 @@
+/* ===============================================
+   📱 RESPONSIVE GLOBAL STYLES
+   ===============================================
+   Works perfectly on ALL devices:
+   - Desktop (1920px+)
+   - Laptop (1024px - 1919px)
+   - Tablet (768px - 1023px)
+   - Mobile (320px - 767px)
+   =============================================== */
+
+:root {
+  /* Colors */
+  --primary: #667eea;
+  --primary-dark: #5568d3;
+  --secondary: #764ba2;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --dark: #1f2937;
+  --light: #f9fafb;
+  --border: #e5e7eb;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* ===============================================
+   🎨 GLOBAL RESETS
+   =============================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--light);
+  color: var(--dark);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ===============================================
+   📱 MOBILE-FIRST CONTAINER
+   =============================================== */
+
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 2rem;
+  }
+}
+
+/* ===============================================
+   🎛️ BUTTONS - RESPONSIVE
+   =============================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+
+/* Mobile: Full width buttons */
+@media (max-width: 767px) {
+  .btn-mobile-full {
+    width: 100%;
+  }
+  
+  .btn-group-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .btn-group-mobile .btn {
+    width: 100%;
+  }
+}
+
+/* Button Colors */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-warning {
+  background: var(--warning);
+  color: white;
+}
+
+.btn-info {
+  background: var(--info);
+  color: white;
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ===============================================
+   📊 CARDS - RESPONSIVE
+   =============================================== */
+
+.card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 767px) {
+  .card {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+@media (max-width: 767px) {
+  .card-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+@media (max-width: 767px) {
+  .card-title {
+    font-size: 1.25rem;
+  }
+}
+
+/* ===============================================
+   📋 TABLES - RESPONSIVE
+   =============================================== */
+
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -1rem;
+  padding: 0 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px; /* Minimum width for scrolling */
+}
+
+@media (max-width: 767px) {
+  table {
+    font-size: 0.875rem;
+  }
+}
+
+th {
+  background: var(--primary);
+  color: white;
+  padding: 0.75rem;
+  text-align: right;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+@media (max-width: 767px) {
+  th {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 767px) {
+  td {
+    padding: 0.5rem;
+  }
+}
+
+tr:hover {
+  background: var(--light);
+}
+
+/* Mobile: Card view for tables */
+@media (max-width: 767px) {
+  .table-mobile-cards table {
+    display: block;
+  }
+  
+  .table-mobile-cards thead {
+    display: none;
+  }
+  
+  .table-mobile-cards tbody {
+    display: block;
+  }
+  
+  .table-mobile-cards tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    background: white;
+  }
+  
+  .table-mobile-cards td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border: none;
+  }
+  
+  .table-mobile-cards td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--dark);
+  }
+}
+
+/* ===============================================
+   📐 GRID - RESPONSIVE
+   =============================================== */
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Default: 1 column (mobile) */
+.grid-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+/* 2 columns from tablet up */
+.grid-cols-2 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 3 columns from desktop up */
+.grid-cols-3 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 4 columns from desktop up */
+.grid-cols-4 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Auto-fit grid */
+.grid-auto-fit {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+@media (max-width: 767px) {
+  .grid-auto-fit {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===============================================
+   🎯 STATS CARDS - RESPONSIVE
+   =============================================== */
+
+.stat-card {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 767px) {
+  .stat-card {
+    padding: 1rem;
+  }
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 767px) {
+  .stat-number {
+    font-size: 2rem;
+  }
+}
+
+.stat-label {
+  font-size: 1rem;
+  opacity: 0.95;
+}
+
+@media (max-width: 767px) {
+  .stat-label {
+    font-size: 0.875rem;
+  }
+}
+
+/* ===============================================
+   📝 FORMS - RESPONSIVE
+   =============================================== */
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+@media (max-width: 767px) {
+  .form-control {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* ===============================================
+   🎭 MODALS - RESPONSIVE
+   =============================================== */
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  position: relative;
+}
+
+@media (max-width: 767px) {
+  .modal-content {
+    padding: 1.5rem;
+    max-height: 95vh;
+    border-radius: var(--radius-lg);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.modal-header h2 {
+  font-size: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .modal-header h2 {
+    font-size: 1.25rem;
+  }
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===============================================
+   🎨 UTILITIES
+   =============================================== */
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.mt-1 { margin-top: var(--spacing-md); }
+.mt-2 { margin-top: var(--spacing-lg); }
+.mt-3 { margin-top: var(--spacing-xl); }
+
+.mb-1 { margin-bottom: var(--spacing-md); }
+.mb-2 { margin-bottom: var(--spacing-lg); }
+.mb-3 { margin-bottom: var(--spacing-xl); }
+
+.p-1 { padding: var(--spacing-md); }
+.p-2 { padding: var(--spacing-lg); }
+.p-3 { padding: var(--spacing-xl); }
+
+/* Hide on mobile */
+.hide-mobile {
+  display: block;
+}
+
+@media (max-width: 767px) {
+  .hide-mobile {
+    display: none;
+  }
+}
+
+/* Show only on mobile */
+.show-mobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .show-mobile {
+    display: block;
+  }
+}
+
+/* ===============================================
+   🔧 MOBILE-SPECIFIC
+   =============================================== */
+
+@media (max-width: 767px) {
+  /* Touch-friendly tap targets */
+  button, a, input, select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent text selection on buttons */
+  button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Better scrolling */
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* ===============================================
+   🌙 DARK MODE SUPPORT (Optional)
+   =============================================== */
+
+@media (prefers-color-scheme: dark) {
+  body.dark-mode {
+    background: #1a1a1a;
+    color: #e5e5e5;
+  }
+  
+  .dark-mode .card {
+    background: #2d2d2d;
+    color: #e5e5e5;
+  }
+  
+  .dark-mode .form-control {
+    background: #2d2d2d;
+    color: #e5e5e5;
+    border-color: #404040;
+  }
+}
+
+/* ===============================================
+   ⚡ PERFORMANCE
+   =============================================== */
+
+/* GPU acceleration for animations */
+.btn,
+.card,
+.modal {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better image loading */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ===============================================
+   📱 PWA SUPPORT
+   =============================================== */
+
+@media (display-mode: standalone) {
+  /* Styles when installed as PWA */
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
