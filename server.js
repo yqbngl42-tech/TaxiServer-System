@@ -146,7 +146,7 @@ console.log('🔍 Validating environment variables...');
 const REQUIRED_ENV_VARS = [
   'MONGODB_URI',
   'JWT_SECRET',
-  'ADMIN_PASSWORD',
+  'ADMIN_PASSWORD_HASH',  // ✅ תואם ל-bcrypt!
   'TWILIO_ACCOUNT_SID',
   'TWILIO_AUTH_TOKEN',
   'TWILIO_WHATSAPP_FROM'
