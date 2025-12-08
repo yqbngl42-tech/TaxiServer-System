@@ -36,25 +36,24 @@ export const config = {
   },
   
   // ========== AUTHENTICATION ==========
-  auth: {
-    adminPassword: process.env.ADMIN_PASSWORD,
-    maxLoginAttempts: 5,
-    lockoutDuration: 15 * 60 * 1000 // 15 minutes
-  },
+ auth: {
+  maxLoginAttempts: 5,
+  lockoutDuration: 15 * 60 * 1000
+},
   
   // ========== TWILIO ==========
-  twilio: {
-    accountSid: process.env.TWILIO_ACCOUNT_SID,
-    authToken: process.env.TWILIO_AUTH_TOKEN,
-    whatsappFrom: process.env.TWILIO_WHATSAPP_FROM,
-    webhookUrl: process.env.WEBHOOK_URL || 'https://taxi-system.onrender.com',
-    maxRetries: 3,
-    retryDelay: 1000,
-    rateLimit: {
-      maxMessagesPerMinute: 100,
-      delayBetweenMessages: 500 // ms
-    }
-  },
+twilio: {
+  accountSid: process.env.TWILIO_ACCOUNT_SID,
+  authToken: process.env.TWILIO_AUTH_TOKEN,
+  whatsappFrom: process.env.TWILIO_WHATSAPP_FROM,
+  webhookUrl: process.env.WEBHOOK_URL || 'https://taxi-system.onrender.com',
+  maxRetries: 3,
+  retryDelay: 1000,
+  rateLimit: {
+    maxMessagesPerMinute: 100,
+    delayBetweenMessages: 500 // ms
+  }
+},
   
   // ========== RATE LIMITING ==========
   rateLimit: {
@@ -166,14 +165,14 @@ export const config = {
  * @throws {Error} if required variables are missing
  */
 export function validateConfig() {
-  const required = [
-    'MONGODB_URI',
-    'JWT_SECRET',
-    'ADMIN_PASSWORD',
-    'TWILIO_ACCOUNT_SID',
-    'TWILIO_AUTH_TOKEN',
-    'TWILIO_WHATSAPP_FROM'
-  ];
+ const required = [
+  'MONGODB_URI',
+  'JWT_SECRET',
+  'ADMIN_PASSWORD_HASH',
+  'TWILIO_ACCOUNT_SID',
+  'TWILIO_AUTH_TOKEN',
+  'TWILIO_WHATSAPP_FROM'
+];
   
   const missing = required.filter(key => !process.env[key]);
   
@@ -182,13 +181,8 @@ export function validateConfig() {
   }
   
   // Validate JWT_SECRET strength
-  if (process.env.JWT_SECRET.length < 32) {
+  if ((process.env.JWT_SECRET || '').length < 32) {
     console.warn('⚠️  WARNING: JWT_SECRET is too short. Use at least 32 characters for security.');
-  }
-  
-  // Validate ADMIN_PASSWORD strength
-  if (process.env.ADMIN_PASSWORD.length < 8) {
-    console.warn('⚠️  WARNING: ADMIN_PASSWORD is too short. Use at least 8 characters for security.');
   }
   
   return true;
