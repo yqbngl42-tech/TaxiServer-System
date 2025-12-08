@@ -197,6 +197,10 @@ app.use(helmet({
 }));
 app.use(mongoSanitize());  // 👈 זה נשאר!
 app.use(xss());            // 👈 זה נשאר!
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 // Static files
 app.use(express.static(path.join(__dirname, "public")));
 
