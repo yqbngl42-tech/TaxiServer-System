@@ -1201,13 +1201,19 @@
     }
 
     async function loadActiveRides() {
-      // Implementation will be added
-      console.log('Loading active rides...');
+      if (ridesManager) {
+        await ridesManager.loadActiveRides();
+      } else {
+        console.log('RidesManager not loaded');
+      }
     }
 
     async function loadDrivers() {
-      // Implementation will be added
-      console.log('Loading drivers...');
+      if (driversManager) {
+        await driversManager.loadDriversList();
+      } else {
+        console.log('DriversManager not loaded');
+      }
     }
 
     // ============================================
@@ -1237,4 +1243,64 @@
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
       console.log('Dashboard initialized');
-   
+         // Check auth
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+      
+      // Load initial page
+      loadPageData('dashboard');
+    });
+  </script>
+
+  <!-- ============================================ -->
+  <!-- JS MODULES -->
+  <!-- ============================================ -->
+  <script src="/js/rides.js" onerror="console.log('rides.js not loaded')"></script>
+  <script src="/js/drivers.js" onerror="console.log('drivers.js not loaded')"></script>
+  <script src="/js/customers.js" onerror="console.log('customers.js not loaded')"></script>
+  <script src="/js/finance.js" onerror="console.log('finance.js not loaded')"></script>
+  <script src="/js/messages.js" onerror="console.log('messages.js not loaded')"></script>
+  <script src="/js/settings.js" onerror="console.log('settings.js not loaded')"></script>
+  <script src="/js/system.js" onerror="console.log('system.js not loaded')"></script>
+  <script src="/js/dashboard.js" onerror="console.log('dashboard.js not loaded')"></script>
+
+  <!-- Initialize modules -->
+  <script>
+    // Create module instances
+    let ridesManager, driversManager, customersManager, financeManager, messagesManager, settingsManager, systemManager, dashboardManager;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize all managers
+      if (typeof RidesManager !== 'undefined') {
+        ridesManager = new RidesManager();
+      }
+      if (typeof DriversManager !== 'undefined') {
+        driversManager = new DriversManager();
+      }
+      if (typeof CustomersManager !== 'undefined') {
+        customersManager = new CustomersManager();
+      }
+      if (typeof FinanceManager !== 'undefined') {
+        financeManager = new FinanceManager();
+      }
+      if (typeof MessagesManager !== 'undefined') {
+        messagesManager = new MessagesManager();
+      }
+      if (typeof SettingsManager !== 'undefined') {
+        settingsManager = new SettingsManager();
+      }
+      if (typeof SystemManager !== 'undefined') {
+        systemManager = new SystemManager();
+      }
+      if (typeof DashboardManager !== 'undefined') {
+        dashboardManager = new DashboardManager();
+      }
+      
+      console.log('✅ All modules initialized!');
+    });
+  </script>
+</body>
+</html>
