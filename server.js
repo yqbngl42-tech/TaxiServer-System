@@ -203,6 +203,14 @@ app.use(xss());
 // Static files
 app.use(express.static(path.join(__dirname, "public")));
 
+// ============================================
+// ROOT ROUTE - Redirect to Dashboard
+// ============================================
+app.get("/", (req, res) => {
+  res.redirect("/dashboard-complete.html");
+});
+
+
 // Request ID middleware (for tracking)
 app.use((req, res, next) => {
   req.id = req.headers['x-request-id'] || uuidv4();
