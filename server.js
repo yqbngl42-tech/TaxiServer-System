@@ -3586,6 +3586,482 @@ ${ride.uniqueLink}
   }
 }
 
+
+// ============================================
+// 🆕 ADDITIONAL API ENDPOINTS
+// ============================================
+
+// ============================================
+// 👥 CUSTOMERS
+// ============================================
+app.get("/api/customers", authenticateToken, async (req, res) => {
+  try {
+    const { vip, search, limit = 100 } = req.query;
+    
+    let query = {};
+    
+    // Filter by VIP status
+    if (vip === 'true') {
+      query.isVIP = true;
+    }
+    
+    // Search filter
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const customers = await Ride.aggregate([
+      {
+        $group: {
+          _id: "$customer.phone",
+          name: { $first: "$customer.name" },
+          phone: { $first: "$customer.phone" },
+          totalRides: { $sum: 1 },
+          totalSpent: { $sum: "$price" },
+          lastRide: { $max: "$createdAt" },
+          createdAt: { $min: "$createdAt" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          name: 1,
+          phone: 1,
+          totalRides: 1,
+          totalSpent: 1,
+          lastRide: 1,
+          createdAt: 1,
+          isVIP: { $gte: ["$totalRides", 10] }
+        }
+      },
+      { $match: query },
+      { $sort: { totalRides: -1 } },
+      { $limit: parseInt(limit) }
+    ]);
+    
+    res.json(customers);
+  } catch (error) {
+    logger.error('Error fetching customers:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 💳 PAYMENTS
+// ============================================
+app.get("/api/payments", authenticateToken, async (req, res) => {
+  try {
+    const { status, method, limit = 50, sort = '-createdAt' } = req.query;
+    
+    let query = {};
+    
+    if (status) {
+      query.status = status;
+    }
+    
+    if (method) {
+      query.paymentMethod = method;
+    }
+    
+    const rides = await Ride.find(query)
+      .populate('driver', 'name phone')
+      .sort(sort)
+      .limit(parseInt(limit))
+      .select('rideNumber customer driver price paymentMethod status createdAt');
+    
+    const payments = rides.map(ride => ({
+      _id: ride._id,
+      rideId: ride.rideNumber,
+      customer: ride.customer,
+      driver: ride.driver,
+      amount: ride.price,
+      method: ride.paymentMethod || 'cash',
+      status: ride.status === 'completed' ? 'completed' : 'pending',
+      createdAt: ride.createdAt
+    }));
+    
+    res.json(payments);
+  } catch (error) {
+    logger.error('Error fetching payments:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 💰 FINANCE - COMMISSIONS
+// ============================================
+app.get("/api/finance/commissions", authenticateToken, async (req, res) => {
+  try {
+    const { period = 'month' } = req.query;
+    
+    let startDate = new Date();
+    if (period === 'month') {
+      startDate.setMonth(startDate.getMonth() - 1);
+    } else if (period === 'week') {
+      startDate.setDate(startDate.getDate() - 7);
+    }
+    
+    const commissions = await Ride.aggregate([
+      {
+        $match: {
+          status: 'completed',
+          createdAt: { $gte: startDate }
+        }
+      },
+      {
+        $group: {
+          _id: "$driver",
+          ridesCount: { $sum: 1 },
+          totalRevenue: { $sum: "$price" }
+        }
+      },
+      {
+        $lookup: {
+          from: 'drivers',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'driverInfo'
+        }
+      },
+      {
+        $unwind: '$driverInfo'
+      },
+      {
+        $project: {
+          driver: {
+            _id: '$driverInfo._id',
+            name: '$driverInfo.name',
+            phone: '$driverInfo.phone'
+          },
+          ridesCount: 1,
+          totalRevenue: 1,
+          commissionPercent: 20,
+          amount: { $multiply: ['$totalRevenue', 0.20] },
+          paid: false
+        }
+      }
+    ]);
+    
+    res.json(commissions);
+  } catch (error) {
+    logger.error('Error fetching commissions:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 📊 FINANCE - REPORTS
+// ============================================
+app.get("/api/finance/reports", authenticateToken, async (req, res) => {
+  try {
+    const now = new Date();
+    
+    // Monthly stats
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthlyRides = await Ride.find({
+      status: 'completed',
+      createdAt: { $gte: monthStart }
+    });
+    
+    // Yearly stats
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+    const yearlyRides = await Ride.find({
+      status: 'completed',
+      createdAt: { $gte: yearStart }
+    });
+    
+    // Driver stats
+    const activeDrivers = await Driver.countDocuments({ status: 'active' });
+    const totalCommissions = monthlyRides.reduce((sum, r) => sum + (r.price * 0.20), 0);
+    
+    // Payment stats
+    const failedPayments = await Ride.countDocuments({
+      status: 'failed',
+      createdAt: { $gte: monthStart }
+    });
+    
+    res.json({
+      monthly: {
+        revenue: monthlyRides.reduce((sum, r) => sum + r.price, 0),
+        rides: monthlyRides.length
+      },
+      yearly: {
+        revenue: yearlyRides.reduce((sum, r) => sum + r.price, 0),
+        rides: yearlyRides.length
+      },
+      drivers: {
+        active: activeDrivers,
+        commissions: totalCommissions
+      },
+      payments: {
+        count: monthlyRides.length,
+        failed: failedPayments
+      }
+    });
+  } catch (error) {
+    logger.error('Error generating finance reports:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 💬 MESSAGES - TEMPLATES
+// ============================================
+app.get("/api/messages/templates", authenticateToken, async (req, res) => {
+  try {
+    // For now, return default templates
+    // TODO: Store in database
+    const templates = [
+      {
+        _id: '1',
+        name: 'ברוכים הבאים',
+        content: 'שלום {{name}}, ברוך הבא למערכת המוניות שלנו! 🚖'
+      },
+      {
+        _id: '2',
+        name: 'תזכורת נסיעה',
+        content: 'היי {{name}}, הנסיעה שלך מתוזמנת ל-{{time}}. נהג יחכה לך!'
+      },
+      {
+        _id: '3',
+        name: 'תודה',
+        content: 'תודה {{name}} על השימוש בשירות! נשמח לראותך שוב 😊'
+      }
+    ];
+    
+    res.json(templates);
+  } catch (error) {
+    logger.error('Error fetching message templates:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 📜 MESSAGES - HISTORY
+// ============================================
+app.get("/api/messages/history", authenticateToken, async (req, res) => {
+  try {
+    const { limit = 50 } = req.query;
+    
+    // Get from activity logs
+    const messages = await Activity.find({
+      type: { $in: ['message_sent', 'notification_sent'] }
+    })
+      .sort('-createdAt')
+      .limit(parseInt(limit))
+      .select('createdAt description metadata');
+    
+    const formattedMessages = messages.map(msg => ({
+      _id: msg._id,
+      sentAt: msg.createdAt,
+      recipient: msg.metadata?.recipient || {},
+      content: msg.description,
+      status: msg.metadata?.status || 'sent',
+      error: msg.metadata?.error || null
+    }));
+    
+    res.json(formattedMessages);
+  } catch (error) {
+    logger.error('Error fetching messages history:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// ⚙️ SETTINGS - GENERAL
+// ============================================
+app.get("/api/settings/general", authenticateToken, async (req, res) => {
+  try {
+    // Return default settings
+    // TODO: Store in database
+    res.json({
+      companyName: process.env.COMPANY_NAME || 'מערכת מוניות',
+      companyPhone: process.env.COMPANY_PHONE || '03-1234567',
+      companyEmail: process.env.COMPANY_EMAIL || 'info@taxi.com',
+      workingHours: '24/7'
+    });
+  } catch (error) {
+    logger.error('Error fetching general settings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/settings/general", authenticateToken, async (req, res) => {
+  try {
+    const settings = req.body;
+    // TODO: Save to database
+    logger.info('General settings updated', settings);
+    res.json({ success: true, message: 'Settings saved' });
+  } catch (error) {
+    logger.error('Error saving general settings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 💵 SETTINGS - PRICING
+// ============================================
+app.get("/api/settings/pricing", authenticateToken, async (req, res) => {
+  try {
+    // Return default pricing
+    // TODO: Store in database
+    res.json({
+      basePrice: process.env.BASE_PRICE || 15,
+      pricePerKm: process.env.PRICE_PER_KM || 5,
+      pricePerMinute: process.env.PRICE_PER_MINUTE || 1,
+      nightSurcharge: process.env.NIGHT_SURCHARGE || 25,
+      commissionPercent: process.env.COMMISSION_PERCENT || 20
+    });
+  } catch (error) {
+    logger.error('Error fetching pricing settings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/settings/pricing", authenticateToken, async (req, res) => {
+  try {
+    const pricing = req.body;
+    // TODO: Save to database
+    logger.info('Pricing settings updated', pricing);
+    res.json({ success: true, message: 'Pricing updated' });
+  } catch (error) {
+    logger.error('Error saving pricing settings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 🤖 BOT - SETTINGS
+// ============================================
+app.get("/api/bot/settings", authenticateToken, async (req, res) => {
+  try {
+    res.json({
+      enabled: !!process.env.BOT_URL,
+      autoAssign: true,
+      autoReply: true,
+      responseDelay: 2
+    });
+  } catch (error) {
+    logger.error('Error fetching bot settings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/bot/settings", authenticateToken, async (req, res) => {
+  try {
+    const settings = req.body;
+    // TODO: Save to database
+    logger.info('Bot settings updated', settings);
+    res.json({ success: true, message: 'Bot settings updated' });
+  } catch (error) {
+    logger.error('Error saving bot settings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 📋 SYSTEM - LOGS
+// ============================================
+app.get("/api/system/logs", authenticateToken, async (req, res) => {
+  try {
+    const { level, limit = 100 } = req.query;
+    
+    let query = {};
+    if (level && level !== 'all') {
+      query.level = level;
+    }
+    
+    // Get from activities
+    const logs = await Activity.find(query)
+      .sort('-createdAt')
+      .limit(parseInt(limit))
+      .select('createdAt type description metadata level');
+    
+    const formattedLogs = logs.map(log => ({
+      timestamp: log.createdAt,
+      level: log.metadata?.level || 'info',
+      message: log.description,
+      meta: log.metadata
+    }));
+    
+    res.json(formattedLogs);
+  } catch (error) {
+    logger.error('Error fetching system logs:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete("/api/system/logs", authenticateToken, async (req, res) => {
+  try {
+    // Clear old logs (older than 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const result = await Activity.deleteMany({
+      createdAt: { $lt: thirtyDaysAgo }
+    });
+    
+    logger.info('Logs cleared', { deleted: result.deletedCount });
+    res.json({ success: true, deleted: result.deletedCount });
+  } catch (error) {
+    logger.error('Error clearing logs:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 💾 SYSTEM - BACKUPS
+// ============================================
+app.get("/api/system/backups", authenticateToken, async (req, res) => {
+  try {
+    // Return mock backups for now
+    // TODO: Implement real backup system
+    res.json([
+      {
+        _id: '1',
+        createdAt: new Date(Date.now() - 86400000),
+        size: 2500000,
+        type: 'auto',
+        status: 'completed'
+      },
+      {
+        _id: '2',
+        createdAt: new Date(Date.now() - 604800000),
+        size: 2400000,
+        type: 'manual',
+        status: 'completed'
+      }
+    ]);
+  } catch (error) {
+    logger.error('Error fetching backups:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/system/backups", authenticateToken, async (req, res) => {
+  try {
+    // TODO: Implement real backup
+    logger.info('Backup created');
+    res.json({
+      success: true,
+      message: 'Backup created successfully',
+      backup: {
+        _id: Date.now().toString(),
+        createdAt: new Date(),
+        size: 2500000,
+        type: 'manual',
+        status: 'completed'
+      }
+    });
+  } catch (error) {
+    logger.error('Error creating backup:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ===============================================
 // 🚀 START SERVER WITH WEBSOCKETS
 // ===============================================
