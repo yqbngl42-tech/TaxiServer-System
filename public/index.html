@@ -89,20 +89,30 @@
   <div class="loader-container">
     <div class="icon">🚖</div>
     <h1>מערכת ניהול מוניות</h1>
-    <p>טוען את הדשבורד...</p>
+    <p>מעביר אותך להתחברות...</p>
     <div class="loader"></div>
     
     <div class="manual-link">
       <p style="margin-bottom: 10px; font-size: 14px;">אם הדף לא נטען אוטומטית:</p>
-      <a href="/dashboard-complete.html">לחץ כאן לכניסה לדשבורד</a>
+      <a href="/login.html">לחץ כאן להתחברות</a>
     </div>
   </div>
 
   <script>
-    // Redirect after 1 second
-    setTimeout(() => {
-      window.location.href = '/dashboard-complete.html';
-    }, 1000);
+    // Check if logged in
+    const authToken = localStorage.getItem('authToken');
+    
+    if (authToken) {
+      // Logged in - go to dashboard
+      setTimeout(() => {
+        window.location.href = '/dashboard-complete.html';
+      }, 1000);
+    } else {
+      // Not logged in - go to login
+      setTimeout(() => {
+        window.location.href = '/login.html';
+      }, 1000);
+    }
   </script>
 </body>
 </html>

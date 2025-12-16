@@ -391,7 +391,7 @@
                     message.style.display = 'block';
 
                     setTimeout(() => {
-                        window.location.href = '/index.html';
+                        window.location.href = '/dashboard-complete.html';
                     }, 1500);
                 } else {
                     throw new Error(data.error || 'שגיאה בכניסה');
@@ -419,7 +419,7 @@
 
                 if (elapsed < parseInt(expiresIn)) {
                     // טוקן תקף, עבור ישירות לעמוד הראשי
-                    window.location.href = '/index.html';
+                    window.location.href = '/dashboard-complete.html';
                 } else {
                     // טוקן פקע
                     localStorage.removeItem('authToken');
