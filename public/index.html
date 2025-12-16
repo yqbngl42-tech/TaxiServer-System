@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מערכת ניהול מוניות - טוען...</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Heebo', 'Arial', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .loader-container {
+      text-align: center;
+      animation: fadeIn 0.5s;
+    }
+
+    .loader {
+      width: 80px;
+      height: 80px;
+      border: 8px solid rgba(255, 255, 255, 0.2);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 30px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+
+    .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .manual-link {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .manual-link a {
+      color: white;
+      text-decoration: none;
+      padding: 12px 24px;
+      border: 2px solid white;
+      border-radius: 8px;
+      display: inline-block;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+
+    .manual-link a:hover {
+      background: white;
+      color: #667eea;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="loader-container">
+    <div class="icon">🚖</div>
+    <h1>מערכת ניהול מוניות</h1>
+    <p>טוען את הדשבורד...</p>
+    <div class="loader"></div>
+    
+    <div class="manual-link">
+      <p style="margin-bottom: 10px; font-size: 14px;">אם הדף לא נטען אוטומטית:</p>
+      <a href="/dashboard-complete.html">לחץ כאן לכניסה לדשבורד</a>
+    </div>
+  </div>
+
+  <script>
+    // Redirect after 1 second
+    setTimeout(() => {
+      window.location.href = '/dashboard-complete.html';
+    }, 1000);
+  </script>
+</body>
+</html>
