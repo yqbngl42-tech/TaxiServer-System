@@ -1,7 +1,5 @@
 # 📱 מערכת Responsive + Help - מדריך התקנה
 
-## 🎯 מה הוספנו
-
 ### 1. 📱 Responsive Design מלא
 קבצים:
 - `responsive.css` - CSS responsive לכל הגדלים
