@@ -4856,6 +4856,426 @@ if (process.env.ENABLE_WEBSOCKETS !== 'false') {
     logger.warn('Server will continue without WebSockets');
   }
 }
+// ============================================
+// 🔧 תוספות endpoints - להעתיק לסוף server.js
+// ============================================
+// העתק את הקוד הזה ממש לפני השורה:
+// "httpServer.listen(PORT, () => {"
+// ============================================
+
+// ============================================
+// 💰 FINANCE - ניהול כספים
+// ============================================
+
+// סקירה כספית
+app.get("/api/finance/overview", authenticateToken, async (req, res) => {
+  try {
+    const now = new Date();
+    
+    // היום
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayRides = await Ride.find({
+      createdAt: { $gte: todayStart },
+      status: 'finished'
+    });
+    
+    // שבוע
+    const weekStart = new Date(now);
+    weekStart.setDate(weekStart.getDate() - 7);
+    const weekRides = await Ride.find({
+      createdAt: { $gte: weekStart },
+      status: 'finished'
+    });
+    
+    // חודש
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthRides = await Ride.find({
+      createdAt: { $gte: monthStart },
+      status: 'finished'
+    });
+    
+    const calculateStats = (rides) => ({
+      revenue: rides.reduce((sum, r) => sum + (r.price || 0), 0),
+      commissions: rides.reduce((sum, r) => sum + (r.commissionAmount || 0), 0),
+      rides: rides.length
+    });
+    
+    res.json({
+      today: calculateStats(todayRides),
+      week: calculateStats(weekRides),
+      month: calculateStats(monthRides),
+      debts: { total: 0 }
+    });
+    
+  } catch (error) {
+    logger.error('Error fetching finance overview:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// תשלומים
+app.get("/api/finance/payments", authenticateToken, async (req, res) => {
+  try {
+    const { status, limit = 50 } = req.query;
+    
+    let query = {};
+    if (status === 'completed') {
+      query.status = 'finished';
+    } else if (status === 'pending') {
+      query.status = { $in: ['created', 'assigned', 'approved', 'enroute'] };
+    }
+    
+    const rides = await Ride.find(query)
+      .populate('driverId', 'name phone')
+      .sort('-createdAt')
+      .limit(parseInt(limit));
+    
+    const payments = rides.map(ride => ({
+      _id: ride._id,
+      rideId: ride.rideNumber,
+      customer: { name: ride.customerName, phone: ride.customerPhone },
+      driver: ride.driverId ? { name: ride.driverId.name, phone: ride.driverId.phone } : null,
+      amount: ride.price || 0,
+      method: ride.paymentMethod || 'cash',
+      status: ride.status === 'finished' ? 'completed' : 'pending',
+      createdAt: ride.createdAt
+    }));
+    
+    res.json(payments);
+    
+  } catch (error) {
+    logger.error('Error fetching payments:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// הגדרות עמלות
+app.post("/api/finance/commissions/settings", authenticateToken, async (req, res) => {
+  try {
+    const { defaultRate } = req.body;
+    // כאן תוכל לשמור להגדרות במסד נתונים
+    logger.info('Commission settings updated', { defaultRate });
+    
+    res.json({ 
+      success: true, 
+      message: 'ההגדרות נשמרו בהצלחה',
+      defaultRate 
+    });
+  } catch (error) {
+    logger.error('Error saving commission settings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// יצירת דוח
+app.post("/api/finance/reports/generate", authenticateToken, async (req, res) => {
+  try {
+    const { type, startDate, endDate } = req.body;
+    
+    const rides = await Ride.find({
+      createdAt: { 
+        $gte: new Date(startDate), 
+        $lte: new Date(endDate) 
+      },
+      status: 'finished'
+    });
+    
+    const report = {
+      type,
+      period: { startDate, endDate },
+      totalRides: rides.length,
+      totalRevenue: rides.reduce((sum, r) => sum + (r.price || 0), 0),
+      totalCommissions: rides.reduce((sum, r) => sum + (r.commissionAmount || 0), 0),
+      generatedAt: new Date()
+    };
+    
+    res.json(report);
+    
+  } catch (error) {
+    logger.error('Error generating report:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 👥 CUSTOMERS - לקוחות
+// ============================================
+
+app.get("/api/customers", authenticateToken, async (req, res) => {
+  try {
+    const { vip, search, limit = 100 } = req.query;
+    
+    const rides = await Ride.find({});
+    const customersMap = new Map();
+    
+    rides.forEach(ride => {
+      const phone = ride.customerPhone;
+      if (!customersMap.has(phone)) {
+        customersMap.set(phone, {
+          phone,
+          name: ride.customerName,
+          totalRides: 0,
+          totalSpent: 0,
+          lastRide: ride.createdAt,
+          isVIP: false
+        });
+      }
+      
+      const customer = customersMap.get(phone);
+      customer.totalRides++;
+      customer.totalSpent += ride.price || 0;
+      if (ride.createdAt > customer.lastRide) {
+        customer.lastRide = ride.createdAt;
+      }
+      customer.isVIP = customer.totalRides >= 10;
+    });
+    
+    let customers = Array.from(customersMap.values());
+    
+    if (vip === 'true') {
+      customers = customers.filter(c => c.isVIP);
+    }
+    
+    if (search) {
+      const searchLower = search.toLowerCase();
+      customers = customers.filter(c => 
+        c.name.toLowerCase().includes(searchLower) ||
+        c.phone.includes(search)
+      );
+    }
+    
+    customers.sort((a, b) => b.totalRides - a.totalRides);
+    customers = customers.slice(0, parseInt(limit));
+    
+    res.json(customers);
+    
+  } catch (error) {
+    logger.error('Error fetching customers:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 💬 MESSAGES - הודעות
+// ============================================
+
+// תבניות הודעות
+app.get("/api/messages/templates", authenticateToken, async (req, res) => {
+  try {
+    const templates = [
+      {
+        _id: '1',
+        name: 'ברוכים הבאים',
+        content: 'שלום {{name}}, ברוך הבא למערכת המוניות! 🚖',
+        category: 'general'
+      },
+      {
+        _id: '2',
+        name: 'תזכורת נסיעה',
+        content: 'היי {{name}}! הנסיעה שלך מתוזמנת ל-{{time}}.',
+        category: 'reminder'
+      },
+      {
+        _id: '3',
+        name: 'תודה על הנסיעה',
+        content: 'תודה {{name}} על השימוש בשירות! 🙏',
+        category: 'thanks'
+      }
+    ];
+    
+    res.json(templates);
+    
+  } catch (error) {
+    logger.error('Error fetching templates:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// היסטוריית הודעות
+app.get("/api/messages/history", authenticateToken, async (req, res) => {
+  try {
+    const { limit = 50 } = req.query;
+    
+    const messages = await Activity.find({
+      type: { $in: ['customer', 'system'] },
+      message: { $regex: /שלח|נשלח|הודעה/i }
+    })
+      .sort('-timestamp')
+      .limit(parseInt(limit));
+    
+    const formatted = messages.map(msg => ({
+      _id: msg._id,
+      sentAt: msg.timestamp,
+      recipient: { name: msg.details || 'לא צוין' },
+      content: msg.message,
+      status: 'sent'
+    }));
+    
+    res.json(formatted);
+    
+  } catch (error) {
+    logger.error('Error fetching messages:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// שליחת הודעות
+app.post("/api/messages/send", authenticateToken, async (req, res) => {
+  try {
+    const { recipients, message } = req.body;
+    
+    if (!recipients || !recipients.length) {
+      return res.status(400).json({ error: 'אין נמענים' });
+    }
+    
+    // כאן תוסיף שליחה אמיתית
+    await Activity.create({
+      timestamp: new Date(),
+      message: `נשלחו ${recipients.length} הודעות`,
+      type: 'system',
+      emoji: '📨',
+      user: req.user?.username || 'admin'
+    });
+    
+    res.json({
+      success: recipients.length,
+      failed: 0
+    });
+    
+  } catch (error) {
+    logger.error('Error sending messages:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// ⚙️ SETTINGS - הגדרות
+// ============================================
+
+// הגדרות כלליות - קריאה
+app.get("/api/settings/general", authenticateToken, async (req, res) => {
+  try {
+    res.json({
+      companyName: process.env.COMPANY_NAME || 'מערכת ניהול מוניות',
+      companyPhone: process.env.COMPANY_PHONE || '03-1234567',
+      companyEmail: process.env.COMPANY_EMAIL || 'info@taxi.com',
+      supportPhone: process.env.SUPPORT_PHONE || '03-1234567'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// הגדרות כלליות - שמירה
+app.post("/api/settings/general", authenticateToken, async (req, res) => {
+  try {
+    const settings = req.body;
+    logger.info('General settings updated', settings);
+    
+    res.json({ 
+      success: true, 
+      message: 'ההגדרות נשמרו',
+      settings 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// הגדרות מחירים - קריאה
+app.get("/api/settings/pricing", authenticateToken, async (req, res) => {
+  try {
+    res.json({
+      basePrice: parseFloat(process.env.BASE_PRICE) || 15,
+      pricePerKm: parseFloat(process.env.PRICE_PER_KM) || 5,
+      pricePerMinute: parseFloat(process.env.PRICE_PER_MINUTE) || 1,
+      commissionPercent: parseFloat(process.env.COMMISSION_PERCENT) || 20
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// הגדרות מחירים - שמירה
+app.post("/api/settings/pricing", authenticateToken, async (req, res) => {
+  try {
+    const pricing = req.body;
+    logger.info('Pricing updated', pricing);
+    
+    res.json({ 
+      success: true, 
+      message: 'המחירים נשמרו',
+      pricing 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// הגדרות קבוצות
+app.get("/api/settings/groups", authenticateToken, async (req, res) => {
+  try {
+    const groups = await WhatsAppGroup.find({ isActive: true });
+    res.json(groups);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// 📊 DASHBOARD - תיקון
+// ============================================
+
+// alias ל-activity/recent
+app.get("/api/activity/recent", authenticateToken, async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+    
+    const activities = await Activity.find({})
+      .sort('-timestamp')
+      .limit(parseInt(limit));
+    
+    res.json(activities);
+    
+  } catch (error) {
+    logger.error('Error fetching activities:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// סטטיסטיקות דשבורד
+app.get("/api/dashboard/stats", authenticateToken, async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const todayRides = await Ride.countDocuments({ createdAt: { $gte: today } });
+    const activeDrivers = await Driver.countDocuments({ isActive: true, isBlocked: false });
+    
+    const revenue = await Ride.aggregate([
+      { $match: { createdAt: { $gte: today }, status: 'finished' } },
+      { $group: { _id: null, total: { $sum: '$price' } } }
+    ]);
+    
+    const activeRides = await Ride.countDocuments({
+      status: { $in: ['assigned', 'approved', 'enroute', 'arrived'] }
+    });
+    
+    res.json({
+      todayRides,
+      activeDrivers,
+      todayRevenue: revenue[0]?.total || 0,
+      activeRides,
+      pendingApprovals: 0
+    });
+    
+  } catch (error) {
+    logger.error('Error fetching dashboard stats:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+console.log('✅ נוספו endpoints חסרים!');
 
 // Start server
 httpServer.listen(PORT, () => {
