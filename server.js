@@ -51,6 +51,13 @@ import websockets from "./utils/websockets.js";
 import corsConfig from "./config/cors-config.js";
 import dispatchManager from "./utils/dispatchManager.js";
 
+// ===============================================
+// 🆕 NEW CLEAN API ROUTES (v2.0)
+// ===============================================
+import authRoutes from "./routes/auth.js";
+import ridesRoutes from "./routes/rides.js";
+import dashboardRoutes from "./routes/dashboard.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -338,6 +345,26 @@ const authenticateToken = (req, res, next) => {
     });
   }
 };
+
+// ===============================================
+// 🆕 NEW CLEAN API ROUTES - REGISTRATION
+// ===============================================
+app.use("/auth", authRoutes);
+app.use("/rides", ridesRoutes);
+app.use("/dashboard", dashboardRoutes);
+
+console.log("✅ New Clean API Routes Registered:");
+console.log("   🔐 POST /auth/login");
+console.log("   🔐 GET  /auth/me");
+console.log("   🔐 POST /auth/logout");
+console.log("   🚗 GET  /rides");
+console.log("   🚗 POST /rides");
+console.log("   🚗 GET  /rides/:id");
+console.log("   🚗 POST /rides/:id/cancel");
+console.log("   🚗 POST /rides/:id/redispatch");
+console.log("   🚗 POST /rides/:id/assign");
+console.log("   📊 GET  /dashboard/summary");
+console.log("");
 
 // ===============================================
 // 🔑 UNIQUE LINK GENERATOR FOR TWILIO
