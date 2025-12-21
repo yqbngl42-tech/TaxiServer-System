@@ -195,7 +195,7 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "ws:", "wss:", "https://taxiserver-system.onrender.com"],
+      connectSrc: ["'self'", "ws:", "wss:", "https://taxiserver-system.onrender.com", "https://client-sideinterface.netlify.app"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -252,6 +252,24 @@ app.use((req, res, next) => {
 });
 
 // CORS Configuration - UPGRADED WITH SECURITY
+// ✅ TEMP CORS FIX (Netlify -> Render) to allow login requests
+app.use(cors({
+  origin: "https://client-sideinterface.netlify.app",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: false,
+  optionsSuccessStatus: 204
+}));
+
+// ✅ allow preflight
+app.options("*", cors({
+  origin: "https://client-sideinterface.netlify.app",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: false,
+  optionsSuccessStatus: 204
+}));
+
 corsConfig.setupCors(app);
 
 // Rate Limiting
