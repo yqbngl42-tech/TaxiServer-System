@@ -73,16 +73,57 @@ router.get('/me', (req, res) => {
 });
 
 // ===============================================
-// 🔓 MIDDLEWARE - BYPASS MODE (allows everything)
+// 🔓 MIDDLEWARE - authenticateToken (BYPASS)
 // ===============================================
-export const authenticateAdmin = (req, res, next) => {
-  console.log('⚠️ BYPASS MODE: Auth middleware bypassed');
+export const authenticateToken = (req, res, next) => {
+  console.log('⚠️ BYPASS MODE: authenticateToken bypassed');
   req.user = {
     username: 'admin',
     role: 'admin',
     bypass: true
   };
   next();
+};
+
+// ===============================================
+// 🔓 MIDDLEWARE - authenticateAdmin (BYPASS)
+// ===============================================
+export const authenticateAdmin = (req, res, next) => {
+  console.log('⚠️ BYPASS MODE: authenticateAdmin bypassed');
+  req.user = {
+    username: 'admin',
+    role: 'admin',
+    bypass: true
+  };
+  next();
+};
+
+// ===============================================
+// 🔓 MIDDLEWARE - verifyToken (BYPASS)
+// ===============================================
+export const verifyToken = (req, res, next) => {
+  console.log('⚠️ BYPASS MODE: verifyToken bypassed');
+  req.user = {
+    username: 'admin',
+    role: 'admin',
+    bypass: true
+  };
+  next();
+};
+
+// ===============================================
+// 🔓 MIDDLEWARE - requireRole (BYPASS)
+// ===============================================
+export const requireRole = (role) => {
+  return (req, res, next) => {
+    console.log(`⚠️ BYPASS MODE: requireRole(${role}) bypassed`);
+    req.user = {
+      username: 'admin',
+      role: 'admin',
+      bypass: true
+    };
+    next();
+  };
 };
 
 // ===============================================
