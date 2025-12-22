@@ -1,95 +1,41 @@
 // ===============================================
-// 🔐 AUTH ROUTES - NEW CLEAN API
+// 🔓 TEMPORARY AUTH BYPASS - FOR TESTING ONLY!
 // ===============================================
 
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import logger from '../utils/logger.js';
-import { ERRORS } from '../utils/errors.js';
 
 const router = express.Router();
 
 // ===============================================
-// POST /auth/login - Login (wrapper על הקיים)
+// 🔓 LOGIN - ACCEPTS ANY PASSWORD
 // ===============================================
 router.post('/login', async (req, res) => {
   try {
     const { password } = req.body;
     
-    if (!password) {
-      return res.status(400).json({
-        ok: false,
-        error: {
-          code: 'MISSING_PASSWORD',
-          message: 'נא להזין סיסמה'
-        }
-      });
-    }
+    console.log('⚠️ BYPASS MODE: Login attempt with password:', password);
     
-    // Get password hash from environment
-    const passwordHash = process.env.ADMIN_PASSWORD_HASH;
+    // Get JWT secret
+    const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-key';
     
-    if (!passwordHash) {
-      logger.error('ADMIN_PASSWORD_HASH not configured');
-      return res.status(500).json({
-        ok: false,
-        error: {
-          code: 'SERVER_MISCONFIGURED',
-          message: 'שגיאת שרת - הגדרות אבטחה חסרות'
-        }
-      });
-    }
-    
-    // Compare password with hash using bcrypt
-    const isValid = await bcrypt.compare(password, passwordHash);
-    
-    if (!isValid) {
-      logger.warn('Failed login attempt (new API)', { 
-        ip: req.ip 
-      });
-      
-      return res.status(401).json({
-        ok: false,
-        error: {
-          code: 'INVALID_PASSWORD',
-          message: 'סיסמה שגויה'
-        }
-      });
-    }
-    
-    // Validate JWT_SECRET is configured
-    if (!process.env.JWT_SECRET) {
-      logger.error('JWT_SECRET not configured');
-      return res.status(500).json({
-        ok: false,
-        error: {
-          code: 'SERVER_MISCONFIGURED',
-          message: 'שגיאת שרת - הגדרות אבטחה חסרות'
-        }
-      });
-    }
-    
-    // Generate JWT token
+    // Create token WITHOUT checking password
     const token = jwt.sign(
       { 
-        user: 'admin', 
+        username: 'admin',
         role: 'admin',
-        loginTime: new Date().toISOString()
-      }, 
-      process.env.JWT_SECRET, 
+        bypass: true
+      },
+      JWT_SECRET,
       { expiresIn: '24h' }
     );
     
-    logger.success('Successful login (new API)', { 
-      ip: req.ip 
-    });
+    console.log('✅ BYPASS MODE: Login successful!');
     
     res.json({
       ok: true,
       data: {
         token,
-        expiresIn: 86400, // 24 hours in seconds
         user: {
           username: 'admin',
           role: 'admin'
@@ -97,118 +43,49 @@ router.post('/login', async (req, res) => {
       }
     });
     
-  } catch (err) {
-    logger.error('Login error (new API)', { 
-      error: err.message 
-    });
-    
+  } catch (error) {
+    console.error('❌ BYPASS MODE: Login error:', error);
     res.status(500).json({
       ok: false,
-      error: {
-        code: 'SERVER_ERROR',
-        message: ERRORS.SERVER.UNKNOWN
-      }
+      error: 'Login failed'
     });
   }
 });
 
 // ===============================================
-// GET /auth/me - Get current user
+// 🔓 LOGOUT
 // ===============================================
-router.get('/me', authenticateToken, (req, res) => {
-  try {
-    res.json({
-      ok: true,
-      data: {
-        username: req.user.user || 'admin',
-        role: req.user.role || 'admin',
-        loginTime: req.user.loginTime
-      }
-    });
-  } catch (err) {
-    res.status(500).json({
-      ok: false,
-      error: {
-        code: 'SERVER_ERROR',
-        message: err.message
-      }
-    });
-  }
+router.post('/logout', (req, res) => {
+  res.json({ ok: true });
 });
 
 // ===============================================
-// POST /auth/logout - Logout
+// 🔓 GET ME
 // ===============================================
-router.post('/logout', authenticateToken, (req, res) => {
-  try {
-    logger.action('User logged out (new API)', { 
-      user: req.user.user 
-    });
-    
-    res.json({
-      ok: true,
-      data: {
-        message: 'התנתקת בהצלחה'
-      }
-    });
-  } catch (err) {
-    res.status(500).json({
-      ok: false,
-      error: {
-        code: 'SERVER_ERROR',
-        message: err.message
-      }
-    });
-  }
-});
-
-// ===============================================
-// MIDDLEWARE - Authenticate Token
-// ===============================================
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({
-      ok: false,
-      error: {
-        code: 'NO_TOKEN',
-        message: ERRORS.AUTH.NO_TOKEN
-      }
-    });
-  }
-  
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    if (decoded.exp && Date.now() >= decoded.exp * 1000) {
-      return res.status(401).json({
-        ok: false,
-        error: {
-          code: 'EXPIRED_TOKEN',
-          message: ERRORS.AUTH.EXPIRED_TOKEN
-        }
-      });
+router.get('/me', (req, res) => {
+  res.json({
+    ok: true,
+    data: {
+      username: 'admin',
+      role: 'admin'
     }
-    
-    req.user = decoded;
-    next();
-  } catch (err) {
-    logger.error('Token verification failed (new API)', { 
-      error: err.message 
-    });
-    
-    return res.status(403).json({
-      ok: false,
-      error: {
-        code: 'INVALID_TOKEN',
-        message: ERRORS.AUTH.INVALID_TOKEN
-      }
-    });
-  }
-}
+  });
+});
 
-// Export router and middleware
-export { authenticateToken };
+// ===============================================
+// 🔓 MIDDLEWARE - BYPASS MODE (allows everything)
+// ===============================================
+export const authenticateAdmin = (req, res, next) => {
+  console.log('⚠️ BYPASS MODE: Auth middleware bypassed');
+  req.user = {
+    username: 'admin',
+    role: 'admin',
+    bypass: true
+  };
+  next();
+};
+
+// ===============================================
+// 🔓 EXPORTS
+// ===============================================
 export default router;

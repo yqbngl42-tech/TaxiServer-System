@@ -72,4 +72,20 @@ router.get('/me', (req, res) => {
   });
 });
 
+// ===============================================
+// 🔓 MIDDLEWARE - BYPASS MODE (allows everything)
+// ===============================================
+export const authenticateAdmin = (req, res, next) => {
+  console.log('⚠️ BYPASS MODE: Auth middleware bypassed');
+  req.user = {
+    username: 'admin',
+    role: 'admin',
+    bypass: true
+  };
+  next();
+};
+
+// ===============================================
+// 🔓 EXPORTS
+// ===============================================
 export default router;
