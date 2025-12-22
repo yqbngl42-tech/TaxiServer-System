@@ -1,99 +1,75 @@
-// middlewares/auth.js
+// ===============================================
+// 🔓 TEMPORARY AUTH BYPASS - FOR TESTING ONLY!
+// ===============================================
+
+import express from 'express';
 import jwt from 'jsonwebtoken';
-import logger from '../utils/logger.js';
 
-/**
- * Middleware לאימות JWT Token
- * בודק שיש token תקף ומוסיף את req.user
- * @param {Request} req 
- * @param {Response} res 
- * @param {NextFunction} next 
- */
-export const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({ 
-      ok: false, 
-      error: 'נדרש טוקן אימות' 
-    });
-  }
-  
+const router = express.Router();
+
+// ===============================================
+// 🔓 LOGIN - ACCEPTS ANY PASSWORD
+// ===============================================
+router.post('/login', async (req, res) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { password } = req.body;
     
-    if (decoded.exp && Date.now() >= decoded.exp * 1000) {
-      return res.status(401).json({ 
-        ok: false, 
-        error: 'הטוקן פג תוקף' 
-      });
-    }
+    console.log('⚠️ BYPASS MODE: Login attempt with password:', password);
     
-    req.user = decoded;
-    next();
-  } catch (err) {
-    logger.error("Token verification failed", { 
-      error: err.message 
+    // Get JWT secret
+    const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-key';
+    
+    // Create token WITHOUT checking password
+    const token = jwt.sign(
+      { 
+        username: 'admin',
+        role: 'admin',
+        bypass: true
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    
+    console.log('✅ BYPASS MODE: Login successful!');
+    
+    res.json({
+      ok: true,
+      data: {
+        token,
+        user: {
+          username: 'admin',
+          role: 'admin'
+        }
+      }
     });
-    return res.status(403).json({ 
-      ok: false, 
-      error: 'טוקן לא תקין' 
-    });
-  }
-};
-
-/**
- * Middleware לאימות תפקיד אדמין
- * חייב לרוץ אחרי authenticateToken!
- * @param {Request} req 
- * @param {Response} res 
- * @param {NextFunction} next 
- */
-export const authenticateAdmin = (req, res, next) => {
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({
+    
+  } catch (error) {
+    console.error('❌ BYPASS MODE: Login error:', error);
+    res.status(500).json({
       ok: false,
-      error: 'גישה נדחתה. רק אדמינים מורשים.'
+      error: 'Login failed'
     });
   }
-  next();
-};
+});
 
-/**
- * Middleware לאימות תפקיד נהג
- * חייב לרוץ אחרי authenticateToken!
- * @param {Request} req 
- * @param {Response} res 
- * @param {NextFunction} next 
- */
-export const authenticateDriver = (req, res, next) => {
-  if (!req.user || req.user.role !== 'driver') {
-    return res.status(403).json({
-      ok: false,
-      error: 'גישה נדחתה. רק נהגים מורשים.'
-    });
-  }
-  next();
-};
+// ===============================================
+// 🔓 LOGOUT
+// ===============================================
+router.post('/logout', (req, res) => {
+  res.json({ ok: true });
+});
 
-/**
- * Middleware כללי לבדיקת תפקידים מרובים
- * חייב לרוץ אחרי authenticateToken!
- * @param {...string} roles - רשימת תפקידים מורשים
- * @returns {Function} middleware function
- * 
- * @example
- * app.get('/api/route', authenticateToken, requireRole('admin', 'driver'), handler);
- */
-export const requireRole = (...roles) => {
-  return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      return res.status(403).json({
-        ok: false,
-        error: `גישה נדחתה. נדרש אחד מהתפקידים: ${roles.join(', ')}`
-      });
+// ===============================================
+// 🔓 GET ME
+// ===============================================
+router.get('/me', (req, res) => {
+  res.json({
+    ok: true,
+    data: {
+      username: 'admin',
+      role: 'admin'
     }
-    next();
-  };
-};
+  });
+});
+
+export default router;
