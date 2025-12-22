@@ -27,8 +27,21 @@ router.post('/login', async (req, res) => {
       });
     }
     
-    // Use bcrypt to compare password with hashed version
-    const passwordHash = process.env.ADMIN_PASSWORD_HASH || process.env.ADMIN_PASSWORD;
+    // Get password hash from environment
+    const passwordHash = process.env.ADMIN_PASSWORD_HASH;
+    
+    if (!passwordHash) {
+      logger.error('ADMIN_PASSWORD_HASH not configured');
+      return res.status(500).json({
+        ok: false,
+        error: {
+          code: 'SERVER_MISCONFIGURED',
+          message: 'שגיאת שרת - הגדרות אבטחה חסרות'
+        }
+      });
+    }
+    
+    // Compare password with hash using bcrypt
     const isValid = await bcrypt.compare(password, passwordHash);
     
     if (!isValid) {
@@ -41,6 +54,18 @@ router.post('/login', async (req, res) => {
         error: {
           code: 'INVALID_PASSWORD',
           message: 'סיסמה שגויה'
+        }
+      });
+    }
+    
+    // Validate JWT_SECRET is configured
+    if (!process.env.JWT_SECRET) {
+      logger.error('JWT_SECRET not configured');
+      return res.status(500).json({
+        ok: false,
+        error: {
+          code: 'SERVER_MISCONFIGURED',
+          message: 'שגיאת שרת - הגדרות אבטחה חסרות'
         }
       });
     }
