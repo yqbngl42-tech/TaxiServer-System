@@ -16,6 +16,7 @@ import express from "express";
 import http from "http";
 import mongoose from "mongoose";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import jwt from "jsonwebtoken";
 import cors from "cors";
@@ -182,28 +183,53 @@ const PORT = process.env.PORT || 3000;
 // ===============================================
 
 // Body parsers
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: "15mb" }));
+app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 
 // Security middleware
 // TODO: בעתיד - העבר inline scripts לקבצים נפרדים ומחק 'unsafe-inline'
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval", "https://cdnjs.cloudflare.com'"],
-      scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "ws:", "wss:", "https://taxiserver-system.onrender.com", "https://client-sideinterface.netlify.app"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          "https://cdnjs.cloudflare.com"
+        ],
+        scriptSrcAttr: ["'unsafe-inline'"],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://fonts.googleapis.com",
+          "https://cdnjs.cloudflare.com"
+        ],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: [
+          "'self'",
+          "ws:",
+          "wss:",
+          "http://localhost:3001",
+          "https://localhost:3001",
+          "https://taxiserver-system.onrender.com",
+          "https://client-sideinterface.netlify.app"
+        ],
+        fontSrc: [
+          "'self'",
+          "https://fonts.gstatic.com",
+          "https://cdnjs.cloudflare.com"
+        ],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"]
+      }
     },
-  },
-  crossOriginEmbedderPolicy: false,
-}));
+    crossOriginEmbedderPolicy: false
+  })
+);
+
 app.use(mongoSanitize());
 app.use(xss());
 
@@ -5321,6 +5347,121 @@ app.get("/api/dashboard/stats", authenticateToken, async (req, res) => {
 });
 
 console.log('✅ נוספו endpoints חסרים!');
+// ===============================================
+// 📝 BOT REGISTRATION ENDPOINTS
+// ===============================================
+
+app.post("/api/bot/registration/message", async (req, res) => {
+  try {
+    const { phone, message, mediaUrl } = req.body;
+
+    logger.info("📝 Bot registration message received", {
+      phone,
+      hasMessage: !!message,
+      hasMedia: !!mediaUrl,
+    });
+
+    if (!phone) {
+      return res.status(400).json({ ok: false, error: "Missing phone number" });
+    }
+
+    const reply = await registrationHandler.handleMessage(phone, message || "", mediaUrl);
+
+    if (!reply) {
+      return res.status(500).json({ ok: false, error: "Failed to process message" });
+    }
+
+    const session = await RegistrationSession.findOne({ phone });
+
+    return res.json({
+      ok: true,
+      reply,
+      currentStep: session?.currentStep,
+      status: session?.status,
+    });
+  } catch (err) {
+    logger.error("Error in bot registration message", { error: err.message, stack: err.stack });
+    return res.status(500).json({
+      ok: false,
+      error: err.message,
+      reply: "❌ אירעה שגיאה טכנית. אנא נסה שוב.",
+    });
+  }
+});
+
+app.post("/api/bot/registration/upload-media", async (req, res) => {
+  try {
+    const { phone, media } = req.body;
+
+    if (!phone || !media || !media.data) {
+      return res.status(400).json({ ok: false, error: "Missing required fields" });
+    }
+
+    logger.info("📸 Uploading media from bot", {
+      phone,
+      mimetype: media.mimetype,
+      filename: media.filename,
+    });
+
+    const timestamp = Date.now();
+    const extension = media.mimetype?.split("/")[1] || "jpg";
+    const filename = `${phone}_${timestamp}.${extension}`;
+
+    // ✅ שמירה בתוך public/uploads כדי שה-URL יעבוד דרך express.static(public)
+    const uploadsDir = path.join(__dirname, "public", "uploads");
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+    const uploadPath = path.join(uploadsDir, filename);
+
+    const buffer = Buffer.from(media.data, "base64");
+    fs.writeFileSync(uploadPath, buffer);
+
+    const mediaUrl = `/uploads/${filename}`;
+
+    logger.success("✅ Media uploaded successfully", { phone, filename, url: mediaUrl });
+
+    return res.json({ ok: true, url: mediaUrl, filename });
+  } catch (err) {
+    logger.error("Error uploading media", { error: err.message, stack: err.stack });
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.post("/api/bot/registration/send-notification", async (req, res) => {
+  try {
+    const { phone, type, driverName, driverId, reason } = req.body;
+
+    if (!phone || !type) {
+      return res.status(400).json({ ok: false, error: "Missing required fields" });
+    }
+
+    logger.info("📤 Sending registration notification via bot", { phone, type });
+
+    const botUrl = process.env.BOT_URL || "http://localhost:3001";
+
+    // ✅ מומלץ: fetchWithTimeout (אם קיים אצלך כבר בשרת)
+    const response = await fetchWithTimeout(`${botUrl}/send-notification`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, type, driverName, driverId, reason }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Bot returned status ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    logger.success("✅ Notification sent via bot", { phone, type });
+
+    return res.json({ ok: true, result });
+  } catch (err) {
+    logger.error("Error sending notification via bot", { error: err.message });
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+logger.success("✅ Bot registration endpoints initialized");
 
 // Start server
 httpServer.listen(PORT, () => {
