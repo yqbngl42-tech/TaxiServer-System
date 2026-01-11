@@ -1,5 +1,5 @@
 // ===============================================
-// 🚖 RIDE MODEL - Enhanced Version
+// 🚖 RIDE MODEL - Enhanced Version + Production Fixes
 // ===============================================
 
 import mongoose from "mongoose";
@@ -21,7 +21,6 @@ const RideSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true
-    // index: composite index defined below
   },
   pickup: {
     type: String,
@@ -58,7 +57,7 @@ const RideSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["created", "distributed", "sent", "locked", "assigned", "approved", "enroute", "arrived", "finished", "commission_paid", "cancelled"],
+    enum: ["created", "distributed", "sent", "locked", "assigned", "approved", "enroute", "arrived", "finished", "commission_paid", "cancelled", "completed"],
     default: "created",
     index: true
   },
@@ -103,7 +102,7 @@ const RideSchema = new mongoose.Schema({
   },
   rideType: {
     type: String,
-    enum: ["regular", "vip", "delivery"],
+    enum: ["regular", "vip", "delivery", "recurring"],
     default: "regular"
   },
   specialNotes: {
@@ -141,6 +140,9 @@ const RideSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  // ===============================================
+  // 🆕 PRODUCTION FIELDS - Lock Management
+  // ===============================================
   lockedBy: {
     type: String,
     default: null
@@ -149,6 +151,93 @@ const RideSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  lockReason: {
+    type: String,
+    default: null
+  },
+  // ===============================================
+  // 🆕 PRODUCTION FIELDS - Assignment Tracking
+  // ===============================================
+  assignedBy: {
+    type: String,
+    default: null
+  },
+  assignedAt: {
+    type: Date,
+    default: null
+  },
+  // ===============================================
+  // 🆕 PRODUCTION FIELDS - Cancellation Tracking
+  // ===============================================
+  cancelledAt: {
+    type: Date,
+    default: null
+  },
+  cancelledBy: {
+    type: String,
+    default: null
+  },
+  cancelReason: {
+    type: String,
+    default: null
+  },
+  // ===============================================
+  // 🆕 PRODUCTION FIELDS - Timeline
+  // ===============================================
+  timeline: [{
+    event: String,
+    timestamp: { type: Date, default: Date.now },
+    details: mongoose.Schema.Types.Mixed
+  }],
+  // ===============================================
+  // 🆕 PRODUCTION FIELDS - Recurring Rides
+  // ===============================================
+  recurring: {
+    enabled: { type: Boolean, default: false },
+    frequency: { 
+      type: String, 
+      enum: ['daily', 'weekly', 'monthly'],
+      default: null
+    },
+    time: { type: String, default: null },
+    endDate: { type: Date, default: null },
+    nextOccurrence: { type: Date, default: null },
+    createdBy: { type: String, default: null }
+  },
+  // ===============================================
+  // 🆕 PRODUCTION FIELDS - Issue Tracking
+  // ===============================================
+  issues: [{
+    type: { type: String, required: true },
+    description: { type: String, required: true },
+    severity: { 
+      type: String, 
+      enum: ['low', 'medium', 'high', 'critical'],
+      default: 'medium'
+    },
+    reportedBy: { type: String, required: true },
+    reportedAt: { type: Date, default: Date.now },
+    resolved: { type: Boolean, default: false },
+    resolvedAt: { type: Date, default: null },
+    resolvedBy: { type: String, default: null }
+  }],
+  // ===============================================
+  // 🆕 PRODUCTION FIELDS - Advanced Pricing
+  // ===============================================
+  pricingDetails: {
+    basePrice: { type: Number, default: 0 },
+    distancePrice: { type: Number, default: 0 },
+    timePrice: { type: Number, default: 0 },
+    surgeMultiplier: { type: Number, default: 1 },
+    discount: { type: Number, default: 0 },
+    totalBeforeDiscount: { type: Number, default: 0 },
+    finalTotal: { type: Number, default: 0 },
+    calculatedAt: { type: Date, default: null },
+    calculatedBy: { type: String, default: null }
+  },
+  // ===============================================
+  // HISTORY - Legacy field (keep for backwards compatibility)
+  // ===============================================
   history: [{
     status: String,
     by: String,
@@ -167,7 +256,6 @@ const RideSchema = new mongoose.Schema({
 });
 
 // Basic indexes for frequent queries
-// Note: Compound indexes below cover status and customerPhone
 RideSchema.index({ driverPhone: 1, status: 1 });
 RideSchema.index({ paymentStatus: 1 });
 RideSchema.index({ lockedBy: 1 });
@@ -259,11 +347,11 @@ RideSchema.methods.canBeCancelled = function() {
 };
 
 RideSchema.methods.isCompleted = function() {
-  return ['finished', 'commission_paid'].includes(this.status);
+  return ['finished', 'commission_paid', 'completed'].includes(this.status);
 };
 
 RideSchema.methods.isActive = function() {
-  return !['cancelled', 'finished', 'commission_paid'].includes(this.status);
+  return !['cancelled', 'finished', 'commission_paid', 'completed'].includes(this.status);
 };
 
 // ===============================================
@@ -283,7 +371,6 @@ RideSchema.index({ customerPhone: 1, createdAt: -1 });
 // Index for date range queries
 RideSchema.index({ createdAt: -1 });
 RideSchema.index({ updatedAt: -1 });
-RideSchema.index({ completedAt: -1 });
 
 // Index for price queries
 RideSchema.index({ price: 1 });
@@ -291,24 +378,30 @@ RideSchema.index({ price: 1 });
 // Text search on customer name and locations
 RideSchema.index({
   customerName: 'text',
-  pickupLocation: 'text',
-  dropoffLocation: 'text'
+  pickup: 'text',
+  destination: 'text'
 }, {
   weights: {
     customerName: 10,
-    pickupLocation: 5,
-    dropoffLocation: 5
+    pickup: 5,
+    destination: 5
   },
   name: 'ride_text_search'
 });
 
 // Index for scheduled rides
-RideSchema.index({ scheduledFor: 1, status: 1 });
+RideSchema.index({ scheduledTime: 1, status: 1 });
 
 // Compound index for analytics
-RideSchema.index({ status: 1, completedAt: -1 });
+RideSchema.index({ status: 1, updatedAt: -1 });
 RideSchema.index({ driverId: 1, status: 1, createdAt: 1 });
 
-console.log('✅ Ride model loaded with indexes and methods');
+// 🆕 New indexes for production fields
+RideSchema.index({ assignedBy: 1, assignedAt: -1 });
+RideSchema.index({ cancelledBy: 1, cancelledAt: -1 });
+RideSchema.index({ 'recurring.enabled': 1, 'recurring.nextOccurrence': 1 });
+RideSchema.index({ 'issues.resolved': 1, 'issues.severity': 1 });
+
+console.log('✅ Ride model loaded with production enhancements');
 
 export default mongoose.model("Ride", RideSchema);

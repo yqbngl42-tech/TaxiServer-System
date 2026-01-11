@@ -1,5 +1,5 @@
 // ===============================================
-// 👨‍✈️ DRIVER MODEL - UPDATED WITH RATINGS
+// 👨‍✈️ DRIVER MODEL - UPDATED WITH RATINGS + SECURITY
 // ===============================================
 
 import mongoose from "mongoose";
@@ -15,7 +15,6 @@ const DriverSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true
-    // index: defined below for composite queries
   },
   driverId: {
     type: String,
@@ -28,7 +27,6 @@ const DriverSchema = new mongoose.Schema({
     type: String,
     default: null,
     trim: true
-    // index: defined below
   },
   licenseNumber: {
     type: String,
@@ -49,28 +47,27 @@ const DriverSchema = new mongoose.Schema({
     default: null,
     trim: true
   },
-  city: {                    // 🆕 עיר מגורים
+  city: {
     type: String,
     default: null,
     trim: true
   },
   documents: {
-    idDocument: {            // 🆕 רישיון נהיגה או ת.ז.
+    idDocument: {
       url: String,
       uploadedAt: Date,
       verified: { type: Boolean, default: false }
     },
-    profilePhoto: {          // 🆕 תמונת פרופיל
+    profilePhoto: {
       url: String,
       uploadedAt: Date,
       verified: { type: Boolean, default: false }
     },
-    carPhoto: {              // 🆕 תמונת רכב
+    carPhoto: {
       url: String,
       uploadedAt: Date,
       verified: { type: Boolean, default: false }
     },
-    // שדות ישנים (לתמיכה לאחור)
     license: {
       url: String,
       uploadedAt: Date,
@@ -91,7 +88,6 @@ const DriverSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'approved', 'rejected', 'completed'],
     default: 'pending'
-    // index: composite index defined below
   },
   approvedBy: {
     type: String,
@@ -108,12 +104,10 @@ const DriverSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
-    // index: composite index defined below
   },
   isBlocked: {
     type: Boolean,
     default: false
-    // index: composite index defined below
   },
   blockedReason: {
     type: String,
@@ -130,7 +124,6 @@ const DriverSchema = new mongoose.Schema({
       default: 5.0, 
       min: 1, 
       max: 5
-      // index: composite index defined below
     },
     count: { 
       type: Number, 
@@ -211,6 +204,29 @@ const DriverSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  // ===============================================
+  // 🆕 PRODUCTION SECURITY FIELDS
+  // ===============================================
+  source: {
+    type: String,
+    enum: ['admin', 'registration', 'whatsapp_auto'],
+    default: 'admin',
+    index: true
+  },
+  autoCreated: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+  autoCreatedAt: {
+    type: Date,
+    default: null
+  },
+  needsVerification: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -254,6 +270,11 @@ DriverSchema.index({
 // Index for earnings queries
 DriverSchema.index({ 'earnings.unpaid': -1 });
 
+// 🆕 New indexes for production security
+DriverSchema.index({ source: 1, autoCreated: 1 });
+DriverSchema.index({ needsVerification: 1, createdAt: -1 });
+DriverSchema.index({ autoCreated: 1, needsVerification: 1 });
+
 console.log('✅ Driver indexes configured');
 
 // ===============================================
@@ -293,7 +314,7 @@ DriverSchema.statics.getTopRated = function(limit = 10) {
   return this.find({ 
     isActive: true, 
     isBlocked: false,
-    'rating.count': { $gte: 3 }  // At least 3 reviews
+    'rating.count': { $gte: 3 }
   })
   .sort({ 'rating.average': -1 })
   .limit(limit)
@@ -326,6 +347,25 @@ DriverSchema.statics.getPendingRegistrations = function() {
   return this.find({ 
     registrationStatus: 'pending'
   }).sort({ createdAt: -1 });
+};
+
+/**
+ * 🆕 Get drivers needing verification
+ */
+DriverSchema.statics.getNeedingVerification = function() {
+  return this.find({
+    needsVerification: true,
+    isActive: true
+  }).sort({ autoCreatedAt: -1 });
+};
+
+/**
+ * 🆕 Get auto-created drivers
+ */
+DriverSchema.statics.getAutoCreated = function() {
+  return this.find({
+    autoCreated: true
+  }).sort({ autoCreatedAt: -1 });
 };
 
 // ===============================================
@@ -431,6 +471,17 @@ DriverSchema.methods.updateLastActive = function() {
 };
 
 /**
+ * 🆕 Mark as verified
+ */
+DriverSchema.methods.markVerified = function(verifiedBy) {
+  this.needsVerification = false;
+  this.registrationStatus = 'approved';
+  this.approvedBy = verifiedBy;
+  this.approvedAt = new Date();
+  return this.save();
+};
+
+/**
  * Get driver summary
  */
 DriverSchema.methods.getSummary = function() {
@@ -447,10 +498,12 @@ DriverSchema.methods.getSummary = function() {
       unpaid: this.earnings.unpaid
     },
     isActive: this.isActive,
-    isBlocked: this.isBlocked
+    isBlocked: this.isBlocked,
+    source: this.source,
+    needsVerification: this.needsVerification
   };
 };
 
-console.log('✅ Driver model loaded with indexes and ratings');
+console.log('✅ Driver model loaded with production security enhancements');
 
 export default mongoose.model("Driver", DriverSchema);
