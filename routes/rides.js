@@ -10,15 +10,11 @@ import Ride from '../models/Ride.js';
 import Driver from '../models/Driver.js';
 import AuditLog from '../models/AuditLog.js';
 import logger from '../utils/logger.js';
-
-// Utils (if available)
-// import { rideNumberGenerator } from '../utils/rideNumberGenerator.js';
-// import { generateUniqueRideLink } from '../utils/linkGenerator.js';
-// import { dispatchManager } from '../services/dispatchManager.js';
-// import { websockets } from '../services/websockets.js';
+import rideNumberGenerator from '../utils/rideNumberGenerator.js';
+import dispatchManager from '../utils/dispatchManager.js';
+import websockets from '../utils/websockets.js';
 
 const router = express.Router();
-
 // ============================================================
 // ERROR MESSAGES
 // ============================================================

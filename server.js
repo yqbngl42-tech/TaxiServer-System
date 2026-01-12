@@ -47,6 +47,8 @@ import miscRoutes from "./routes/misc.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import healthRoutes from "./routes/health.js";
 import ridesExtraRoutes from "./routes/rides-extra.js";
+import campaignsRoutes from "./routes/campaigns.js";
+import messageTemplatesRoutes from "./routes/message-templates.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -118,6 +120,8 @@ app.use("/api/system", systemRoutes);
 app.use("/api/dispatch", dispatchRoutes);
 app.use("/api/finance", financeRoutes);
 app.use("/api/customers", customersRoutes);
+app.use("/api/campaigns", campaignsRoutes);
+app.use("/api/templates", messageTemplatesRoutes);
 
 // Integration routes
 app.use("/api/bot", botRoutes);

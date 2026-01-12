@@ -1,17 +1,26 @@
 // ============================================================
-// GROUPS ROUTES
-// Auto-generated from server.js refactoring
+// GROUPS ROUTES - FIXED
 // ============================================================
 
 import express from 'express';
-
-// Import what you need (adjust based on actual usage)
-// import Ride from '../models/Ride.js';
-// import Driver from '../models/Driver.js';
-// import { authenticateToken } from '../middlewares/auth.js';
-// import logger from '../utils/logger.js';
+import WhatsAppGroup from '../models/WhatsAppGroup.js';
+import { authenticateToken } from '../middlewares/auth.js';
+import { requirePermission } from '../middlewares/rbac.js';
+import logger from '../utils/logger.js';
 
 const router = express.Router();
+
+// Error messages
+const ERRORS = {
+  SERVER: {
+    DATABASE: 'שגיאת מסד נתונים',
+    UNKNOWN: 'שגיאת שרת'
+  },
+  GROUP: {
+    NAME_EXISTS: 'שם הקבוצה כבר קיים',
+    NOT_FOUND: 'קבוצה לא נמצאה'
+  }
+};
 
 // ============================================================
 // 6 ENDPOINTS
@@ -92,7 +101,7 @@ router.post("/", authenticateToken, async (req, res) => {
       isActive: true
     });
     
-    logger.success("Group created", {
+    logger.info("Group created", {
       requestId: req.id,
       groupId: group._id,
       name: group.name
@@ -139,7 +148,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       });
     }
     
-    logger.success("Group updated", {
+    logger.info("Group updated", {
       requestId: req.id,
       groupId: group._id
     });
@@ -184,7 +193,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     
     await WhatsAppGroup.findByIdAndDelete(id);
     
-    logger.success("Group deleted", {
+    logger.info("Group deleted", {
       requestId: req.id,
       groupId: id
     });
