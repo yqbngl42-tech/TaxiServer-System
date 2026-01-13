@@ -4,11 +4,9 @@
 // ============================================================
 
 import express from 'express';
+import { Driver, RegistrationSession, Ride } from '../models/index.js';
 import { authenticateToken } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/rbac.js';
-import Ride from '../models/Ride.js';
-import Driver from '../models/Driver.js';
-import RegistrationSession from '../models/RegistrationSession.js';
 import logger from '../utils/logger.js';
 
 const router = express.Router();

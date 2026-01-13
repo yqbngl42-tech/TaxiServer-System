@@ -3,7 +3,7 @@
 // ============================================================
 
 import express from 'express';
-import WhatsAppGroup from '../models/WhatsAppGroup.js';
+import { WhatsAppGroup } from '../models/index.js';
 import { authenticateToken } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/rbac.js';
 import logger from '../utils/logger.js';

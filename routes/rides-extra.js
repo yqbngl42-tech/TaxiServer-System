@@ -5,9 +5,7 @@
 // Created: 24 דצמבר 2025
 
 import express from 'express';
-import Ride from '../models/Ride.js';
-import Driver from '../models/Driver.js';
-import Activity from '../models/Activity.js';
+import { Activity, Driver, Ride } from '../models/index.js';
 import { authenticateToken } from './auth.js';
 
 const router = express.Router();

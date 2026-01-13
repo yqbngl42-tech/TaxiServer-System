@@ -9,12 +9,12 @@
 // ===============================================
 
 import express from 'express';
-import mongoose from 'mongoose';
+import { Activity, AuditLog } from '../models/index.js';
 import { authenticateToken } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/rbac.js';
-import Activity from '../models/Activity.js';
-import AuditLog from '../models/AuditLog.js';
 import logger from '../utils/logger.js';
+
+import mongoose from 'mongoose';
 
 const router = express.Router();
 

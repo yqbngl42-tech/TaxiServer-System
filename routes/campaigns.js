@@ -1,5 +1,5 @@
 import express from 'express';
-import Campaign from '../models/Campaign.js';
+import { Campaign } from '../models/index.js';
 import { authenticateToken } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/rbac.js';
 

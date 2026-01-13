@@ -1,5 +1,5 @@
 import express from 'express';
-import MessageTemplate from '../models/MessageTemplate.js';
+import { MessageTemplate } from '../models/index.js';
 import { authenticateToken } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/rbac.js';
 

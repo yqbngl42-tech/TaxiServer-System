@@ -4,6 +4,10 @@
 // ============================================================
 
 import express from 'express';
+import { Activity, Driver, RegistrationSession, Ride, WhatsAppGroup } from '../models/index.js';
+import { authenticateToken } from '../middlewares/auth.js';
+import logger from '../utils/logger.js';
+import websockets from '../utils/websockets.js';
 
 // Import what you need (adjust based on actual usage)
 // import Ride from '../models/Ride.js';
@@ -18,7 +22,7 @@ const router = express.Router();
 // ============================================================
 
 // POST /api/twilio/webhook
-router.post("/api/twilio/webhook", validateTwilioRequest, async (req, res) => {
+router.post("/api/twilio/webhook", async (req, res) => {
   try {
     const { From, Body, MediaUrl0, NumMedia } = req.body;
     const driverPhone = From?.replace('whatsapp:', '');

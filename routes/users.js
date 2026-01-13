@@ -7,13 +7,12 @@
 // ===============================================
 
 import express from 'express';
-import bcrypt from 'bcryptjs';
+import { Activity, AuditLog, User } from '../models/index.js';
 import { authenticateToken } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/rbac.js';
-import User from '../models/User.js';
-import Activity from '../models/Activity.js';
-import AuditLog from '../models/AuditLog.js';
 import logger from '../utils/logger.js';
+
+import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 

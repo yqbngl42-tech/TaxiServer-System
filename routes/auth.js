@@ -5,12 +5,12 @@
 // ============================================================
 
 import express from 'express';
+import { AuditLog, User } from '../models/index.js';
+import logger from '../utils/logger.js';
+
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import User from '../models/User.js';
-import AuditLog from '../models/AuditLog.js';
-import logger from '../utils/logger.js';
 
 const router = express.Router();
 

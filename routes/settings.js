@@ -4,6 +4,9 @@
 // ============================================================
 
 import express from 'express';
+import { Driver, Ride, WhatsAppGroup } from '../models/index.js';
+import { authenticateToken } from '../middlewares/auth.js';
+import logger from '../utils/logger.js';
 
 // Import what you need (adjust based on actual usage)
 // import Ride from '../models/Ride.js';

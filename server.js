@@ -78,7 +78,7 @@ try {
 // WEBSOCKET SETUP
 // ===============================================
 
-websockets.initialize(server);
+websockets.setupWebSockets(server);
 
 // ===============================================
 // STATIC FILES

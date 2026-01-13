@@ -4,11 +4,9 @@
 // ============================================================
 
 import express from 'express';
+import { AuditLog, Driver, Ride } from '../models/index.js';
 import { authenticateToken } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/rbac.js';
-import Driver from '../models/Driver.js';
-import Ride from '../models/Ride.js';
-import AuditLog from '../models/AuditLog.js';
 import logger from '../utils/logger.js';
 
 const router = express.Router();
